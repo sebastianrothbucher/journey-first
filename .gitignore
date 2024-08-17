@@ -1,0 +1,3 @@
+/dist
+/node_modules
+/lambdas/types/journey-first-graphql-types.ts
