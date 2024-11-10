@@ -2,7 +2,7 @@
   <div class="journey">
     <h2>Journey</h2>
     <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team. See simple version online <a href="https://sebastianrothbucher.github.io/journeymap/" target="_blank">here</a></p>
-    <details :open="true">
+    <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
       <p>In this step, shed some light on who your stakeholders are - both people you directly work with as well as those further out who have skin in the game.</p>
       <p v-for="(s, i) in stakeholders" :key="i">
@@ -25,10 +25,10 @@
       </div>
       <hr />
       <div>
-        <button class="matter-button-contained">Next: situation, problem, what if...</button>
+        <button class="matter-button-contained" @click="nextStep(2)">Next: situation, problem, what if...</button>
       </div>
     </details>
-    <details>
+    <details :open="2 === currentStep">
       <summary><h3 class="detailheader">Situation, problem, what if...</h3></summary>
       <p>In this step, describe the sitution as it is now and why/how it should be improved</p>
       <div>
@@ -51,7 +51,7 @@
       </div>
       <hr />
       <div>
-        <button class="matter-button-contained">Next: steps of the journey</button>
+        <button class="matter-button-contained" @click="nextStep(3)">Next: steps of the journey</button>
       </div>
     </details>
     <details>
@@ -61,7 +61,7 @@
         <steps :steps="['one', 'two']"></steps>
 
         <label class="matter-textfield-filled">
-            <input placeholder="e.g. head of customer service"/>
+            <input placeholder="e.g. take part in webinar, accept offer for upgrade, etc."/>
             <span>name step</span>
         </label> <br />
         <button class="matter-button-outlined">add</button> <!-- auto-add last if filled -->
@@ -123,6 +123,7 @@
   import Steps from '@/components/Steps.vue';
   import { ref } from 'vue'
 
+  const currentStep = ref(1);
   const stakeholders = ref([]);
   const inconcrete = ref({});
   const situationFocus = ref('');
@@ -130,6 +131,9 @@
 
   function checkConcrete(){
     // not yet
+  }
+  function nextStep(ind: number) {
+    currentStep.value = ind;
   }
 </script>
 <style scoped lang="scss">

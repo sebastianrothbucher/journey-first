@@ -5,7 +5,7 @@
   "scripts": {
     "download:matter": "curl 'https://github.com/finnhvman/matter/releases/download/0.2.2/matter.css' -L -o src/assets/matter.css",
     "postinstall": "npm run download:matter",
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --host 127.0.0.1",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit"
   },
