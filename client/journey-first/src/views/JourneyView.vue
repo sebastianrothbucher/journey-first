@@ -121,6 +121,12 @@
 </template>
 <script lang="ts" setup>
   import Steps from '@/components/Steps.vue';
+  import { ref } from 'vue'
+
+  const stakeholders = ref([]);
+  const inconcrete = ref({});
+  const situationFocus = ref('');
+  const steps = ref([]);
 </script>
 <style scoped lang="scss">
   .journey {
