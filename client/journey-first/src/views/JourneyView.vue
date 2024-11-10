@@ -29,7 +29,7 @@
       </div>
     </details>
     <details>
-      <summary>Situation, problem, what if...</summary>
+      <summary><h3 class="detailheader">Situation, problem, what if...</h3></summary>
       <p>In this step, describe the sitution as it is now and why/how it should be improved</p>
       <div>
         <label class="matter-textfield-filled">
@@ -62,7 +62,7 @@
 
         <label class="matter-textfield-filled">
             <input placeholder="e.g. head of customer service"/>
-            <span>name stepo</span>
+            <span>name step</span>
         </label> <br />
         <button class="matter-button-outlined">add</button> <!-- auto-add last if filled -->
       </div>
@@ -127,6 +127,10 @@
   const inconcrete = ref({});
   const situationFocus = ref('');
   const steps = ref([]);
+
+  function checkConcrete(){
+    // not yet
+  }
 </script>
 <style scoped lang="scss">
   .journey {
@@ -142,5 +146,8 @@
   label.matter-textfield-filled textarea:placeholder-shown, label.matter-textfield-filled input:placeholder-shown {
     padding-top: 20px;
     font-size: 12px;
+  }
+  input[type="text"], input:not([type]), textarea {
+    width: 50vw;
   }
 </style>
