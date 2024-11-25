@@ -5,7 +5,7 @@
     <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
       <p>In this step, shed some light on who your stakeholders are - both people you directly work with as well as those further out who have skin in the game.</p>
-      <p v-for="(s, i) in stakeholders" :key="i">
+      <p v-for="(s, i) in content.stakeholders" :key="i">
         <strong>{{ s.name }}</strong> ({{ s.type }}): {{ s.goals }}
       </p>
       <div>
@@ -33,28 +33,28 @@
       <p>In this step, describe the sitution as it is now and why/how it should be improved</p>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. we lose touch after initial sale and shipment fo the product" @blur="checkConcrete('situation', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. we lose touch after initial sale and shipment fo the product" v-model="content.situation" @blur="checkConcrete('situation', $event.target.value)"></textarea>
             <span>Describe the situation as of now</span>
         </label><br />
         <span v-if="inconcrete['situation']">{{ inconcrete['situation'] }} <br /></span>
       </div>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. we miss out on high-margin follow-up business + we don't really help them along the way" @blur="checkConcrete('problem', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. we miss out on high-margin follow-up business + we don't really help them along the way" v-model="content.problem" @blur="checkConcrete('problem', $event.target.value)"></textarea>
             <span>What is wrong with that?</span>
         </label><br />
         <span v-if="inconcrete['problem']">{{ inconcrete['problem'] }} <br /></span>
       </div>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. customers switch to competition and stay there" @blur="checkConcrete('downsides', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. customers switch to competition and stay there" v-model="content.downsides" @blur="checkConcrete('downsides', $event.target.value)"></textarea>
             <span>What if this is not fixed?</span>
         </label><br />
         <span v-if="inconcrete['downsides']">{{ inconcrete['downsides'] }} <br /></span>
       </div>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. follow up and offer tailored add-ons / services" @blur="checkConcrete('focus', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. follow up and offer tailored add-ons / services" v-model="content.focus" @blur="checkConcrete('focus', $event.target.value)"></textarea>
             <span>So: what should <em>this</em> initiative be focused on?</span>
         </label><br />
         <span v-if="inconcrete['focus']">{{ inconcrete['focus'] }} <br /></span>
@@ -68,7 +68,7 @@
       <summary><h3 class="detailheader">Steps</h3></summary>
       <p>In this step, we'll describe the customer journey high-level, i.e. name the staps customers go through</p>
       <div>
-        <steps :steps="steps.length > 0 ? steps : ['first step']"></steps>
+        <steps :steps="content.steps.length > 0 ? content.steps : ['first step']"></steps>
         <label class="matter-textfield-filled">
             <input placeholder="e.g. take part in webinar, accept offer for upgrade, etc." v-model="newStep"/>
             <span>name step</span>
@@ -84,11 +84,11 @@
       <summary><h3 class="detailheader">Walkthrough</h3></summary>
       <p>In this step, we'll walk through one customer getting one product or service and look at each step he/she takes</p>
       <div>
-        <steps :steps="steps"></steps>
+        <steps :steps="content.steps"></steps>
       </div>
-      <div v-for="(s, i) in steps" :key="i">
+      <div v-for="(s, i) in content.steps" :key="i">
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. Mike gets to our landing page by searching 'shop conversion' or Laura accepts the offer for an upgrade by going to our portal and choosing 'premium'" v-model="stepWalkthroughs[i]" @blur="checkConcrete('walkthrough' + i, $event.target.value)"></textarea>
+            <textarea placeholder="e.g. Mike gets to our landing page by searching 'shop conversion' or Laura accepts the offer for an upgrade by going to our portal and choosing 'premium'" v-model="s.walkthrough" @blur="checkConcrete('walkthrough' + i, $event.target.value)"></textarea>
             <span>Give an example for step {{ i+1 }}: {{ s }}</span>
         </label><br />
         <span v-if="inconcrete['walkthrough' + i]">{{ inconcrete['walkthrough' + i] }}<br /></span>
@@ -101,13 +101,13 @@
     <details :open="5 === currentStep">
       <summary><h3 class="detailheader">Realization</h3></summary>
       <p>In this step, we break down what we still need and what stories we can prepare for the team</p>
-      <div v-for="(s, i) in steps" :key="i">
+      <div v-for="(s, i) in content.steps" :key="i">
         <label class="matter-textfield-filled">
-          <input placeholder=" " class="compact"/>
+          <input placeholder=" " class="compact" v-model="s.exists"/>
           <span>what we have already for step {{ i + 1 }}: {{ s }}</span>
         </label>
         <label class="matter-textfield-filled">
-          <input placeholder=" " class="compact"/>
+          <input placeholder=" " class="compact" v-model="s.needed"/>
           <span>what we still needfor step {{ i + 1 }}: {{ s }}</span>
         </label>
         <button class="matter-button-outlined">create story</button> <!-- create story button by Bedrock -->
@@ -121,9 +121,9 @@
       <summary><h3 class="detailheader">Signoff</h3></summary>
       <p>In this step, we take what the team implemented and compare it to the original plan</p>
       <div>
-        Reminder: the initiative was focused on {{ situationFocus }}<br />
-        Customers go through these steps: {{ steps.map(s => s.title).join(", ") }}<br />
-        A typical walkthrough looks like this: {{ steps.map(s => s.walkthrough).join(", ") }}
+        Reminder: the initiative was focused on {{ content.focus }}<br />
+        Customers go through these steps: {{ content.steps.map(s => s.title).join(", ") }}<br />
+        A typical walkthrough looks like this: {{ content.steps.map(s => s.walkthrough).join(", ") }}
       </div>
       <hr />
       <div>
@@ -133,15 +133,15 @@
               <span>We do contribute significantly to the original goal</span>
           </label>
         </div>
-        <div v-for="(s, i) in steps" :key="i">
+        <div v-for="(s, i) in content.steps" :key="i">
           <label class="matter-checkbox">
-              <input type="checkbox">
+              <input type="checkbox" v-model="s.stepSignoff">
               <span>Step {{ i+1 }} - {{ s.title }} is works correctly and looks great</span>
           </label>
         </div>
-        <div v-for="(s, i) in steps" :key="i">
+        <div v-for="(s, i) in content.steps" :key="i">
           <label class="matter-checkbox">
-              <input type="checkbox">
+              <input type="checkbox" v-model="s.walkthroughSignoff">
               <span>{{ s.walkthrough }}: this can be done nicely and easily</span>
           </label>
         </div>
@@ -162,20 +162,41 @@
     type: string;
     goals: string;
   }
+  interface Step {
+    title: string;
+    stepSignoff: boolean;
+    walkthrough: string;
+    walkthroughSignoff: boolean;
+    exists: string;
+    needed: string;
+    storyRef?: string;
+  }
+  interface Content {
+    stakeholders: Stakeholder[];
+    situation: string;
+    problem: string;
+    downsides: string;
+    focus: string;
+    steps: Step[];
+    overallSignoff: boolean;
+  }
 
   const currentStep = ref(1);
+  const content: Ref<Content> = ref({
+    stakeholders: [],
+    situation: "",
+    problem: "",
+    downsides: "",
+    focus: "",
+    steps: [],
+    overallSignoff: false,
+  });
   const newStakeholder: Ref<Stakeholder> = ref({name: "", type: "", goals: ""});
-  const stakeholders: Ref<Stakeholder[]> = ref([]);
   const inconcrete: Ref<{[field: string]: string | null}> = ref({});
-  const situationFocus = ref('');
   const newStep = ref("");
-  const steps: Ref<string[]> = ref([]);
-  const stepWalkthroughs: Ref<string[]> = ref([]);
-  const stepExists: Ref<string[]> = ref([]);
-  const stepNeeded: Ref<string[]> = ref([]);
 
   function addStakeholder() {
-    stakeholders.value.push(newStakeholder.value); 
+    content.value.stakeholders.push(newStakeholder.value); 
     newStakeholder.value = {name: "", type: "", goals: ""};
   }
   function checkConcrete(field: string, value: string) {
@@ -188,17 +209,16 @@
   function nextStep(ind: number) {
     currentStep.value = ind;
   }
-  function fillUpToSteps(list: string[]) {
-    while(list.length < steps.value.length) {
-      list.push("");
-    }
-  }
   function addJourneyStep() {
-    steps.value.push(newStep.value);
+    content.value.steps.push({
+      title: newStep.value,
+      stepSignoff: false,
+      walkthrough: "",
+      walkthroughSignoff: false,
+      exists: "",
+      needed: "",
+    });
     newStep.value = "";
-    fillUpToSteps(stepWalkthroughs.value);
-    fillUpToSteps(stepExists.value);
-    fillUpToSteps(stepNeeded.value);
   }
 </script>
 <style scoped lang="scss">
