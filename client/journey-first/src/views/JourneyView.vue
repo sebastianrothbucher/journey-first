@@ -68,7 +68,7 @@
       <summary><h3 class="detailheader">Steps</h3></summary>
       <p>In this step, we'll describe the customer journey high-level, i.e. name the staps customers go through</p>
       <div>
-        <steps :steps="content.steps.length > 0 ? content.steps : ['first step']"></steps>
+        <steps :steps="content.steps.length > 0 ? content.steps.map(s => s.title) : ['first step']"></steps>
         <label class="matter-textfield-filled">
             <input placeholder="e.g. take part in webinar, accept offer for upgrade, etc." v-model="newStep"/>
             <span>name step</span>
@@ -84,12 +84,12 @@
       <summary><h3 class="detailheader">Walkthrough</h3></summary>
       <p>In this step, we'll walk through one customer getting one product or service and look at each step he/she takes</p>
       <div>
-        <steps :steps="content.steps"></steps>
+        <steps :steps="content.steps.map(s => s.title)"></steps>
       </div>
       <div v-for="(s, i) in content.steps" :key="i">
         <label class="matter-textfield-filled">
             <textarea placeholder="e.g. Mike gets to our landing page by searching 'shop conversion' or Laura accepts the offer for an upgrade by going to our portal and choosing 'premium'" v-model="s.walkthrough" @blur="checkConcrete('walkthrough' + i, $event.target.value)"></textarea>
-            <span>Give an example for step {{ i+1 }}: {{ s }}</span>
+            <span>Give an example for step {{ i+1 }}: {{ s.title }}</span>
         </label><br />
         <span v-if="inconcrete['walkthrough' + i]">{{ inconcrete['walkthrough' + i] }}<br /></span>
       </div>
@@ -104,11 +104,11 @@
       <div v-for="(s, i) in content.steps" :key="i">
         <label class="matter-textfield-filled">
           <input placeholder=" " class="compact" v-model="s.exists"/>
-          <span>what we have already for step {{ i + 1 }}: {{ s }}</span>
+          <span>what we have already for step {{ i + 1 }}: {{ s.title }}</span>
         </label>
         <label class="matter-textfield-filled">
           <input placeholder=" " class="compact" v-model="s.needed"/>
-          <span>what we still needfor step {{ i + 1 }}: {{ s }}</span>
+          <span>what we still needfor step {{ i + 1 }}: {{ s.title }}</span>
         </label>
         <button class="matter-button-outlined">create story</button> <!-- create story button by Bedrock -->
       </div>      
