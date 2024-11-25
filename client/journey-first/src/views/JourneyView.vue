@@ -101,8 +101,17 @@
     <details :open="5 === currentStep">
       <summary><h3 class="detailheader">Realization</h3></summary>
       <p>In this step, we break down what we still need and what stories we can prepare for the team</p>
-
-      <!-- create story button by Bedrock -->
+      <div v-for="(s, i) in steps" :key="i">
+        <label class="matter-textfield-filled">
+          <input placeholder=" " class="compact"/>
+          <span>what we have already for step {{ i + 1 }}: {{ s }}</span>
+        </label>
+        <label class="matter-textfield-filled">
+          <input placeholder=" " class="compact"/>
+          <span>what we still needfor step {{ i + 1 }}: {{ s }}</span>
+        </label>
+        <button class="matter-button-outlined">create story</button> <!-- create story button by Bedrock -->
+      </div>      
       <hr />
       <div>
         <button class="matter-button-contained" @click="nextStep(6)">Next: signoff</button>
@@ -162,6 +171,8 @@
   const newStep = ref("");
   const steps: Ref<string[]> = ref([]);
   const stepWalkthroughs: Ref<string[]> = ref([]);
+  const stepExists: Ref<string[]> = ref([]);
+  const stepNeeded: Ref<string[]> = ref([]);
 
   function addStakeholder() {
     stakeholders.value.push(newStakeholder.value); 
@@ -177,12 +188,17 @@
   function nextStep(ind: number) {
     currentStep.value = ind;
   }
+  function fillUpToSteps(list: string[]) {
+    while(list.length < steps.value.length) {
+      list.push("");
+    }
+  }
   function addJourneyStep() {
     steps.value.push(newStep.value);
     newStep.value = "";
-    while(stepWalkthroughs.value.length < steps.value.length) { // have a walkthrough for each
-      stepWalkthroughs.value.push("");
-    }
+    fillUpToSteps(stepWalkthroughs.value);
+    fillUpToSteps(stepExists.value);
+    fillUpToSteps(stepNeeded.value);
   }
 </script>
 <style scoped lang="scss">
@@ -200,7 +216,10 @@
     padding-top: 20px;
     font-size: 12px;
   }
-  input[type="text"], input:not([type]), textarea {
+  input[type="text"]:not(.compact), input:not([type]):not(.compact), textarea {
     width: 50vw;
+  }
+  input[type="text"].compact, input:not([type]).compact {
+    width: 400px;
   }
 </style>
