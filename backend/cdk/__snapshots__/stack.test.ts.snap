@@ -1,0 +1,452 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot Test 1`] = `
+{
+  "Outputs": {
+    "JourneyFirstAPIEndpointEF5AECA6": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "JourneyFirstAPI1C8D3DDE",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "JourneyFirstAPIDeploymentStageprod378A2FFC",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "CheckConcreteFunction718848E3": {
+      "DependsOn": [
+        "CheckConcreteFunctionServiceRoleDefaultPolicyE750F6BE",
+        "CheckConcreteFunctionServiceRole57D5C5B1",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "e2b46a7a5e17134f104a06717a37f237882fd332f4f38955280e2447528992f5.zip",
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "CheckConcreteFunctionServiceRole57D5C5B1",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CheckConcreteFunctionServiceRole57D5C5B1": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CheckConcreteFunctionServiceRoleDefaultPolicyE750F6BE": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "bedrock:InvokeModel",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CheckConcreteFunctionServiceRoleDefaultPolicyE750F6BE",
+        "Roles": [
+          {
+            "Ref": "CheckConcreteFunctionServiceRole57D5C5B1",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "JourneyFirstAPI1C8D3DDE": {
+      "Properties": {
+        "Name": "JourneyFirstAPI",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "JourneyFirstAPIAccountE1F70877": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "JourneyFirstAPI1C8D3DDE",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "JourneyFirstAPICloudWatchRole95547F0C",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "JourneyFirstAPICloudWatchRole95547F0C": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "JourneyFirstAPIDeploymentAF6C7BE8d6b26e49e62447a5fde972d2252be869": {
+      "DependsOn": [
+        "JourneyFirstAPIcheckconcreteOPTIONSD294A4CF",
+        "JourneyFirstAPIcheckconcretePOST263FF349",
+        "JourneyFirstAPIcheckconcreteAB9E178B",
+      ],
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "JourneyFirstAPI1C8D3DDE",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "JourneyFirstAPIDeploymentStageprod378A2FFC": {
+      "DependsOn": [
+        "JourneyFirstAPIAccountE1F70877",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "JourneyFirstAPIDeploymentAF6C7BE8d6b26e49e62447a5fde972d2252be869",
+        },
+        "RestApiId": {
+          "Ref": "JourneyFirstAPI1C8D3DDE",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "JourneyFirstAPIKeyC7015D08": {
+      "Properties": {
+        "Enabled": true,
+        "StageKeys": [
+          {
+            "RestApiId": {
+              "Ref": "JourneyFirstAPI1C8D3DDE",
+            },
+            "StageName": {
+              "Ref": "JourneyFirstAPIDeploymentStageprod378A2FFC",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::ApiKey",
+    },
+    "JourneyFirstAPIcheckconcreteAB9E178B": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "JourneyFirstAPI1C8D3DDE",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "check-concrete",
+        "RestApiId": {
+          "Ref": "JourneyFirstAPI1C8D3DDE",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "JourneyFirstAPIcheckconcreteOPTIONSD294A4CF": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+                "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "JourneyFirstAPIcheckconcreteAB9E178B",
+        },
+        "RestApiId": {
+          "Ref": "JourneyFirstAPI1C8D3DDE",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "JourneyFirstAPIcheckconcretePOST263FF349": {
+      "Properties": {
+        "ApiKeyRequired": true,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "CheckConcreteFunction718848E3",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "JourneyFirstAPIcheckconcreteAB9E178B",
+        },
+        "RestApiId": {
+          "Ref": "JourneyFirstAPI1C8D3DDE",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "JourneyFirstAPIcheckconcretePOSTApiPermissionTesttestJourneyFirstAPID023D48FPOSTcheckconcrete930C39A2": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CheckConcreteFunction718848E3",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "JourneyFirstAPI1C8D3DDE",
+              },
+              "/test-invoke-stage/POST/check-concrete",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "JourneyFirstAPIcheckconcretePOSTApiPermissiontestJourneyFirstAPID023D48FPOSTcheckconcrete259E7F4C": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CheckConcreteFunction718848E3",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "JourneyFirstAPI1C8D3DDE",
+              },
+              "/",
+              {
+                "Ref": "JourneyFirstAPIDeploymentStageprod378A2FFC",
+              },
+              "/POST/check-concrete",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "UsagePlanC18B28F1": {
+      "Properties": {
+        "ApiStages": [
+          {
+            "ApiId": {
+              "Ref": "JourneyFirstAPI1C8D3DDE",
+            },
+            "Stage": {
+              "Ref": "JourneyFirstAPIDeploymentStageprod378A2FFC",
+            },
+            "Throttle": {},
+          },
+        ],
+        "Quota": {
+          "Limit": 20,
+          "Period": "WEEK",
+        },
+        "UsagePlanName": "JourneyFirstUsagePlan",
+      },
+      "Type": "AWS::ApiGateway::UsagePlan",
+    },
+    "UsagePlanUsagePlanKeyResourcetestJourneyFirstAPIKey7239C449C0FB33F8": {
+      "Properties": {
+        "KeyId": {
+          "Ref": "JourneyFirstAPIKeyC7015D08",
+        },
+        "KeyType": "API_KEY",
+        "UsagePlanId": {
+          "Ref": "UsagePlanC18B28F1",
+        },
+      },
+      "Type": "AWS::ApiGateway::UsagePlanKey",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
