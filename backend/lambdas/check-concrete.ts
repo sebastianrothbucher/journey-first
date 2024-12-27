@@ -11,7 +11,16 @@ const bedrockRuntime = new BedrockRuntimeClient(bedrockConfig);
 
 export const handler = async (event: APIGatewayProxyEvent) => {
   const scenario = JSON.parse(event.body!);
-  const prompt = "\n\nHuman: Is the following scenario concrete (and substantial) or vague? Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenario.scenario + "\n\nAssistant: "
+  let scenarioText = scenario.scenario?.trim();
+  if (!scenarioText) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'No scenario provided' }),
+    };
+  }
+  scenarioText = scenarioText.substring(0, 400); // avoid denial of wallet
+
+  const prompt = "\n\nHuman: Is the following scenario concrete (and substantial) or vague? Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenarioText + "\n\nAssistant: "
 
   const command = new InvokeModelCommand({
     modelId: 'anthropic.claude-v2',
