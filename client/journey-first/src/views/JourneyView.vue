@@ -1,12 +1,15 @@
 <template>
   <div class="journey">
+    <div style="float: right; ">
+      <button class="matter-button-contained" @click="showLoadSave()">Load/Save</button>
+    </div>
     <h2>Journey <em>first</em></h2>
-    <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team. See simple version online <a href="https://sebastianrothbucher.github.io/journeymap/" target="_blank">here</a></p>
+    <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.</p><!-- TODO: kick journeymap when finished -->
     <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
       <p>In this step, shed some light on who your stakeholders are - both people you directly work with as well as those further out who have skin in the game.</p>
       <p v-for="(s, i) in content.stakeholders" :key="i">
-        <strong>{{ s.name }}</strong> ({{ s.type }}): {{ s.goals }}
+        <strong>{{ s.name }}</strong> ({{ s.type }}): {{ s.goals }} <button class="matter-button-outlined" style="min-width: initial; padding: 0 5px;" @click="removeStakeholer(i)" title="remove">🗑</button>
       </p>
       <div>
         <label class="matter-textfield-filled">
@@ -151,11 +154,34 @@
     <div>
       <button class="matter-button-contained">Save current state</button>
     </div>
+    <!-- dialog -->
+    <dialog ref="loadSave" style="top: 10vh">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideLoadSave()">X</div>
+      <div style="display: flex;">
+        <div style="width: 40vw; border-right: 1px solid lightgrey; padding: 10px;">
+          <h3>Save to GDrive</h3>
+          <div>
+            <label class="matter-textfield-filled">
+              <input placeholder=" " class="compact" v-model="newFilename"/>
+              <span>Name for file (or pick below)</span>
+            </label>
+          </div>
+          <div>
+            <button class="matter-button-contained" :disabled="(!newFilename) || saving" @click="saveGdrive()">Save as {{ newFilename }}</button>
+            {{ (currentGdrive && (!saving)) ? 'Saved as ' + currentGdrive.name : '' }}
+          </div>
+        </div>
+        <div style="width: 40vw; padding: 10px;">
+          
+        </div>
+      </div>
+    </dialog>
   </div>
 </template>
 <script lang="ts" setup>
   import Steps from '@/components/Steps.vue';
-  import { ref, Ref } from 'vue';
+  import { onBeforeUnmount, onMounted, ref, Ref, useTemplateRef } from 'vue';
+  import * as gdrive from '../util/gdrive';
 
   interface Stakeholder {
     name: string;
@@ -199,9 +225,14 @@
     content.value.stakeholders.push(newStakeholder.value); 
     newStakeholder.value = {name: "", type: "", goals: ""};
   }
+  function removeStakeholer(i:number) {
+    content.value.stakeholders.splice(i, 1);
+  }
   function checkConcrete(field: string, value: string) {
-    if (value.includes("any")) { // TODO: call claude
+    if (value.includes("any")) { // TODO: call claude (fall back on this if error)
       inconcrete.value = {...inconcrete.value, [field]: "'Any' is not concrete enough"};
+    } else if (value.includes("some")) { // TODO: call claude (fall back on this if error)
+      inconcrete.value = {...inconcrete.value, [field]: "'Some' is not concrete enough"};
     } else {
       inconcrete.value = {...inconcrete.value, [field]: null};
     }
@@ -219,6 +250,49 @@
       needed: "",
     });
     newStep.value = "";
+  }
+
+  // store in localStorage
+  const LS_KEY = "journey1st";
+  let lsInterval:number = -1;
+  onMounted(() => {
+    if (localStorage.getItem(LS_KEY)) {
+      content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
+    }
+    lsInterval = setInterval(() => {
+      localStorage.setItem(LS_KEY, JSON.stringify(content.value));
+    }, 2000);
+  });
+  onBeforeUnmount(() => clearInterval(lsInterval));
+
+  // store files as "only visible for application" in Gdrive
+  const loadSaveRef = useTemplateRef<HTMLDialogElement>('loadSave');
+  function showLoadSave() {
+    loadSaveRef.value!.show();
+    // TODO: load G-Drive contents
+  }
+  function hideLoadSave() {
+    loadSaveRef.value!.close();
+  }
+  const newFilename = ref<string>("");
+  const currentGdrive = ref<{id: string, name: string}|null>(null);
+  const saving = ref(false);
+  async function saveGdrive() {
+    // create new file when we don't have anything yet - otherwise check
+    if (!newFilename.value?.trim()) {
+      return;
+    }
+    saving.value = true;
+    await gdrive.ensureAuth();
+    if (currentGdrive.value?.name !== newFilename.value) {
+      currentGdrive.value = await gdrive.createAndUploadFile(newFilename.value, content.value);
+      saving.value = false;
+    } else {
+      // TODO: update existing file
+    }
+    setTimeout(() => {
+      hideLoadSave();
+    }, 3_000);
   }
 </script>
 <style scoped lang="scss">
