@@ -169,11 +169,16 @@
           </div>
           <div>
             <button class="matter-button-contained" :disabled="(!newFilename) || saving" @click="saveGdrive()">Save as {{ newFilename }}</button>
-            {{ (currentGdrive && (!saving)) ? 'Saved as ' + currentGdrive.name : '' }}
+            {{ (currentGdrive && (!saving) && savingMessage) ? 'Saved as ' + currentGdrive.name : '' }}
           </div>
         </div>
         <div style="width: 40vw; padding: 10px;">
-          
+          <h3>Load from GDrive</h3>
+          <ul>
+            <li v-if="loadingFileList"><em>Loading...</em></li>
+            <li v-if="(!loadingFileList) && existingFiles.length < 1">(none so far)</li>
+            <li v-for="(f, i) in existingFiles" :key="i" style="cursor: pointer; " @click="loadGdrive(f)">{{ f.name }}</li>
+          </ul>
         </div>
       </div>
     </dialog>
@@ -259,24 +264,36 @@
   onMounted(() => {
     if (localStorage.getItem(LS_KEY)) {
       content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
+      currentGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_file') || "null");
     }
     lsInterval = setInterval(() => {
       localStorage.setItem(LS_KEY, JSON.stringify(content.value));
+      localStorage.setItem(LS_KEY + '_file', JSON.stringify(currentGdrive.value));
     }, 2000);
   });
   onBeforeUnmount(() => clearInterval(lsInterval));
 
   // store files as "only visible for application" in Gdrive
   const loadSaveRef = useTemplateRef<HTMLDialogElement>('loadSave');
-  function showLoadSave() {
+  const existingFiles = ref<{id: string, name: string}[]>([]);
+  const loadingFileList = ref(false);
+  async function showLoadSave() {
+    if (currentGdrive.value?.name) {
+      newFilename.value = currentGdrive.value!.name;
+    }
+    savingMessage.value = false;
     loadSaveRef.value!.show();
-    // TODO: load G-Drive contents
+    loadingFileList.value = true;
+    await gdrive.ensureAuth();
+    existingFiles.value = await gdrive.loadFileList();
+    loadingFileList.value = false;
   }
   function hideLoadSave() {
     loadSaveRef.value!.close();
   }
   const newFilename = ref<string>("");
   const currentGdrive = ref<{id: string, name: string}|null>(null);
+  const savingMessage = ref(false);
   const saving = ref(false);
   async function saveGdrive() {
     // create new file when we don't have anything yet - otherwise check
@@ -288,13 +305,21 @@
     if (currentGdrive.value?.name !== newFilename.value) {
       currentGdrive.value = await gdrive.createAndUploadFile(newFilename.value, content.value);
       saving.value = false;
+      savingMessage.value = true;
     } else {
-      // TODO: update existing file
+      await gdrive.updateFileContent(currentGdrive.value.id, content.value);
+      saving.value = false;
+      savingMessage.value = true;
     }
     setTimeout(() => {
       hideLoadSave();
     }, 3_000);
   }
+  const loadingFile = ref(false);
+  async function loadGdrive(f: {id: string, name: string}) {
+    // TODO
+  }
+  // TODO: error handling - press F5 to reload, etc.
 </script>
 <style scoped lang="scss">
   .journey {

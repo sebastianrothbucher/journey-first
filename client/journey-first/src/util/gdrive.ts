@@ -51,3 +51,29 @@ export async function createAndUploadFile(name: string, content: any): Promise<{
   console.log(response);
   return response.result; // id and name are in it
 }
+export async function updateFileContent(id: string, content: any) {
+  const response: {result: {id: string, name: string}} = await gapi.client.request({
+    path: '/upload/drive/v3/files/' + id,
+    method: 'PATCH',
+    params: { uploadType: 'media' },
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      'Authorization': 'Bearer ' + access_token,
+    },
+    body: JSON.stringify(content),
+  });
+  console.log(response);
+  return response.result;
+}
+export async function loadFileList(): Promise<{id: string, name: string}[]> {
+  const response: {result: {files: {id: string, name: string}[]}} = await gapi.client.request({
+    path: '/drive/v3/files',
+    method: 'GET',
+    params: { includeItemsFromAllDrives: true, supportsAllDrives: true, orderBy: 'name', pageSize: 100 },
+    headers: {
+      'Authorization': 'Bearer ' + access_token,
+    },
+  });
+  console.log(response);
+  return response.result.files;
+}
