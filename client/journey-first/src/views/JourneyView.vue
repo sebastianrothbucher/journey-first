@@ -4,7 +4,8 @@
       <button class="matter-button-contained" @click="showLoadSave()">Load/Save</button>
     </div>
     <h2>Journey <em>first</em></h2>
-    <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.</p><!-- TODO: kick journeymap when finished -->
+    <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
+    <small>This page is for demo purposes only; here is absolutely, positively, <strong>zero warranty</strong> - you are using this tool <strong>at your own risk.</strong>. <a href="#">MIT License</a> applies - <a href="#">Code</a></small></p><!-- TODO: kick journeymap when finished -->
     <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
       <p>In this step, shed some light on who your stakeholders are - both people you directly work with as well as those further out who have skin in the game.</p>
