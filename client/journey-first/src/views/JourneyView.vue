@@ -5,6 +5,7 @@
     </div>
     <h2>Journey <em>first</em></h2>
     <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
+    Have feedback or ideas? Don't hesitate to <a href="https://docs.google.com/forms/d/e/1FAIpQLScZ5Qhk8jllh49di48ehdxgQpVuSCsFo7E8WWFwO-Nxv0GkUA/viewform?usp=header" target="_blank">share your thoughts any time</a>!<br/>
     <small>This page is for demo purposes only; here is absolutely, positively, <strong>zero warranty</strong> - you are using this tool <strong>at your own risk.</strong>. <a href="#">MIT License</a> applies - <a href="#">Code</a></small></p><!-- TODO: kick journeymap when finished -->
     <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
@@ -156,6 +157,17 @@
       <button class="matter-button-contained">Save current state</button>
     </div>
     <!-- dialog -->
+    <dialog ref="gdriveOk" style="top: 10vh">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideGdriveOk">X</div>
+      <div style="width: 70vw">
+        <h3>Use GDrive to store journeys</h3>
+        <p>With or without Gdrive, a copy is stored temporarily in your browser - but you can't use it anywhere else and there's no guarantee the browser does not do housekeeping and removes things stored by this site. So, you can store journeys to your GDrive as well. When opting for that, you'll be asked to give this app permission to save and read it's <em>own</em> files. What that means: you can later open files you saved with this tool. But this tool will not be able to see other files in your GDrive.</p>
+        <div>
+          <button class="matter-button-contained" @click="firstGdriveLogin()">First GDrive login</button>
+          {{ firstLoginOk ? 'Login successful' : '' }}
+        </div>
+      </div>
+    </dialog>
     <dialog ref="loadSave" style="top: 10vh">
       <div style="float: right; padding: 10px; cursor: pointer;" @click="hideLoadSave()">X</div>
       <div style="display: flex;">
@@ -265,19 +277,41 @@
     if (localStorage.getItem(LS_KEY)) {
       content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
       currentGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_file') || "null");
+      okForGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_gdrive') || "false");
     }
     lsInterval = setInterval(() => {
       localStorage.setItem(LS_KEY, JSON.stringify(content.value));
       localStorage.setItem(LS_KEY + '_file', JSON.stringify(currentGdrive.value));
+      localStorage.setItem(LS_KEY + '_gdrive', JSON.stringify(okForGdrive.value));
     }, 2000);
   });
   onBeforeUnmount(() => clearInterval(lsInterval));
 
   // store files as "only visible for application" in Gdrive
+  const gdriveOk = useTemplateRef<HTMLDialogElement>('gdriveOk');
+  const firstLoginOk = ref(false);
+  async function firstGdriveLogin() {
+    await gdrive.ensureAuth();
+    firstLoginOk.value = true;
+    okForGdrive.value = true;
+    setTimeout(() => {
+      hideGdriveOk();
+      showLoadSave();
+    }, 3_000);
+  }
+  function hideGdriveOk() {
+    gdriveOk.value!.close();
+  }
+  // preliminaries out of the way, actually save
   const loadSaveRef = useTemplateRef<HTMLDialogElement>('loadSave');
+  const okForGdrive = ref(false);
   const existingFiles = ref<{id: string, name: string}[]>([]);
   const loadingFileList = ref(false);
   async function showLoadSave() {
+    if (!okForGdrive.value) {
+      gdriveOk.value!.show(); // nothing else
+      return;
+    }
     if (currentGdrive.value?.name) {
       newFilename.value = currentGdrive.value!.name;
     }
@@ -296,7 +330,6 @@
   const savingMessage = ref(false);
   const saving = ref(false);
   async function saveGdrive() {
-    // create new file when we don't have anything yet - otherwise check
     if (!newFilename.value?.trim()) {
       return;
     }
@@ -315,9 +348,13 @@
       hideLoadSave();
     }, 3_000);
   }
-  const loadingFile = ref(false);
   async function loadGdrive(f: {id: string, name: string}) {
-    // TODO
+    if (!confirm("Discard what's not yet saved and load " + f.name + "?")) {
+      return;
+    }
+    const newContent = await gdrive.loadFile(f.id);
+    content.value = newContent;
+    currentGdrive.value = f;
   }
   // TODO: error handling - press F5 to reload, etc.
 </script>

@@ -77,3 +77,17 @@ export async function loadFileList(): Promise<{id: string, name: string}[]> {
   console.log(response);
   return response.result.files;
 }
+export async function loadFile(id: string): Promise<any> {
+  const response: {body: string} = await gapi.client.request({
+    path: '/drive/v3/files/' + id,
+    method: 'GET',
+    params: {
+      alt: 'media', // download contents
+    },
+    headers: {
+      'Authorization': 'Bearer ' + access_token,
+    },
+  });
+  console.log(response);
+  return JSON.parse(response.body);
+}
