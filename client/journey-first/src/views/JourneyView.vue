@@ -111,12 +111,12 @@
       <p>In this step, we break down what we still need and what stories we can prepare for the team</p>
       <div v-for="(s, i) in content.steps" :key="i">
         <label class="matter-textfield-filled">
-          <input placeholder=" " class="compact" v-model="s.exists"/>
-          <span>what we have already for step {{ i + 1 }}: {{ s.title }}</span>
+          <input placeholder=" " class="semicompact" v-model="s.exists"/>
+          <span style="white-space: nowrap;">Exists for step {{ i + 1 }}: {{ s.title }}</span>
         </label>
         <label class="matter-textfield-filled">
-          <input placeholder=" " class="compact" v-model="s.needed"/>
-          <span>what we still needfor step {{ i + 1 }}: {{ s.title }}</span>
+          <input placeholder=" " class="semicompact" v-model="s.needed"/>
+          <span style="white-space: nowrap;">Needed for step {{ i + 1 }}: {{ s.title }}</span>
         </label>
         <button class="matter-button-outlined">create story</button> <!-- create story button by Bedrock -->
       </div>      
@@ -155,10 +155,6 @@
         </div>
       </div>
     </details>
-    <hr />
-    <div>
-      <button class="matter-button-contained">Save current state</button>
-    </div>
     <!-- dialog -->
     <dialog ref="gdriveOk" style="top: 10vh">
       <div style="float: right; padding: 10px; cursor: pointer;" @click="hideGdriveOk">X</div>
@@ -390,8 +386,11 @@
     padding-top: 20px;
     font-size: 12px;
   }
-  input[type="text"]:not(.compact), input:not([type]):not(.compact), textarea {
+  input[type="text"]:not(.compact):not(.semicompact), input:not([type]):not(.compact), textarea {
     width: 50vw;
+  }
+  input[type="text"].semicompact, input:not([type]).semicompact {
+    width: 40vw;
   }
   input[type="text"].compact, input:not([type]).compact {
     width: 400px;
