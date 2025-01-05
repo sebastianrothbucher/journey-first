@@ -73,12 +73,12 @@
       <summary><h3 class="detailheader">Steps</h3></summary>
       <p>In this step, we'll describe the customer journey high-level, i.e. name the staps customers go through</p>
       <div>
-        <steps :steps="content.steps.length > 0 ? content.steps.map(s => s.title) : ['first step']"></steps>
+        <steps :steps="content.steps.length > 0 ? content.steps.map(s => s.title) : ['first step']" :readonly="!(content.steps.length > 0)" @title-rename="renameJourneyStep($event)"></steps>
         <label class="matter-textfield-filled">
             <input placeholder="e.g. take part in webinar, accept offer for upgrade, etc." v-model="newStep"/>
             <span>name step</span>
         </label> <br />
-        <button class="matter-button-outlined" @click="addJourneyStep()">add</button> <!-- auto-add last if filled -->
+        <button class="matter-button-outlined" @click="addJourneyStep()">Add step</button> <!-- auto-add last if filled -->
       </div>
       <hr />
       <div>
@@ -89,7 +89,7 @@
       <summary><h3 class="detailheader">Walkthrough</h3></summary>
       <p>In this step, we'll walk through one customer getting one product or service and look at each step he/she takes</p>
       <div>
-        <steps :steps="content.steps.map(s => s.title)"></steps>
+        <steps :steps="content.steps.map(s => s.title)" :readonly="true"></steps>
       </div>
       <div v-for="(s, i) in content.steps" :key="i">
         <label class="matter-textfield-filled">
@@ -268,6 +268,11 @@
       needed: "",
     });
     newStep.value = "";
+  }
+  function renameJourneyStep(ev: {i: number, title: string}) {
+    console.log(ev);
+    console.log(content.value.steps);
+    content.value.steps[ev.i].title = ev.title;
   }
 
   // store in localStorage
