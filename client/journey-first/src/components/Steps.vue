@@ -1,7 +1,7 @@
 <template>
   <div class="steps">
     <div class="step" v-for="(s, i) of props.steps" :key="i">
-      <span class="title" :class="{editing}" @click="startEditing(i)">
+      <span class="title" :class="{editing, readonly}" @click="startEditing(i)">
         {{ editing ? null : s }}
         <input ref="editInput" v-if="editing" v-model="editText" @keydown.esc="endEditing(false)" @keydown.enter="endEditing(true)" @blur="endEditing(true)"/>
       </span>
@@ -58,7 +58,7 @@ function endEditing(save: boolean) {
     align-self: center;
     padding: 3px 17px 3px 23px;
     width: 75%;
-    &:not(.editing):hover:after {
+    &:not(.editing):not(.readonly):hover:after {
       display: inline;
       content: ' ✏️'
     }
