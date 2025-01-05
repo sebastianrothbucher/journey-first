@@ -5,7 +5,7 @@
     </div>
     <h2>Journey <em>first</em></h2>
     <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
-    Have feedback or ideas? Don't hesitate to <a href="https://docs.google.com/forms/d/e/1FAIpQLScZ5Qhk8jllh49di48ehdxgQpVuSCsFo7E8WWFwO-Nxv0GkUA/viewform?usp=header" target="_blank">share your thoughts any time</a>!<br/>
+    Have feedback or ideas? Don't hesitate to <a href="https://docs.google.com/forms/d/e/1FAIpQLScZ5Qhk8jllh49di48ehdxgQpVuSCsFo7E8WWFwO-Nxv0GkUA/viewform?usp=header" target="_blank">share your thoughts any time</a>! Also feel free to start a (personal) discussion and <a href="https://github.com/sebastianrothbucher/journey-first/issues" target="_blank">open an Issue</a>! Anyhow your feedback is appreciated.<br/>
     <small>This page is for demo purposes only; here is absolutely, positively, <strong>zero warranty</strong> - you are using this tool <strong>at your own risk.</strong>. <a href="#">MIT License</a> applies - <a href="#">Code</a></small></p><!-- TODO: kick journeymap when finished -->
     <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
