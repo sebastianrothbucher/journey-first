@@ -26,11 +26,12 @@
             <span>goals of this stakeholder</span>
         </label> <br />
         <span v-if="inconcrete['stakeholderGoals']">{{ inconcrete['stakeholderGoals'] }} <br /></span>
-        <button class="matter-button-outlined" @click="addStakeholder()">add</button> <!-- auto-add last if filled -->
+        <button class="matter-button-outlined" :disabled="!newStakeholder.name" @click="addStakeholder()">add</button> <!-- auto-add last if filled -->
       </div>
       <hr />
       <div>
-        <button class="matter-button-contained" @click="nextStep(2)">Next: situation, problem, what if...</button>
+        <button class="matter-button-contained" :disabled="!(content.stakeholders.length > 0)" @click="nextStep(2)">Next: situation, problem, what if...</button>
+        <small v-if="!(content.stakeholders.length > 0)"> Hint: Add stakeholders before proceeding</small>
       </div>
     </details>
     <details :open="2 === currentStep">
@@ -66,7 +67,8 @@
       </div>
       <hr />
       <div>
-        <button class="matter-button-contained" @click="nextStep(3)">Next: steps of the journey</button>
+        <button class="matter-button-contained" :disabled="!spinComplete" @click="nextStep(3)">Next: steps of the journey</button>
+        <small v-if="!spinComplete"> Hint: Add situation, problem, etc. before proceeding</small>
       </div>
     </details>
     <details :open="3 === currentStep">
@@ -78,11 +80,12 @@
             <input placeholder="e.g. take part in webinar, accept offer for upgrade, etc." v-model="newStep"/>
             <span>name step</span>
         </label> <br />
-        <button class="matter-button-outlined" @click="addJourneyStep()">Add step</button> <!-- auto-add last if filled -->
+        <button class="matter-button-outlined" :disabled="!newStep" @click="addJourneyStep()">Add step</button> <!-- auto-add last if filled -->
       </div>
       <hr />
       <div>
-        <button class="matter-button-contained" @click="nextStep(4)">Next: concrete walkthrough</button>
+        <button class="matter-button-contained" :disabled="!(content.steps.length > 0)" @click="nextStep(4)">Next: concrete walkthrough</button>
+        <small v-if="!(content.steps.length > 0)"> Hint: Add steps before proceeding</small>
       </div>
     </details>
     <details :open="4 === currentStep">
@@ -198,7 +201,7 @@
 </template>
 <script lang="ts" setup>
   import Steps from '@/components/Steps.vue';
-  import { onBeforeUnmount, onMounted, ref, Ref, useTemplateRef } from 'vue';
+  import { computed, onBeforeUnmount, onMounted, ref, Ref, useTemplateRef } from 'vue';
   import * as gdrive from '../util/gdrive';
 
   interface Stakeholder {
@@ -239,6 +242,11 @@
   const inconcrete: Ref<{[field: string]: string | null}> = ref({});
   const newStep = ref("");
 
+  function nextStep(ind: number) {
+    currentStep.value = ind;
+  }
+
+  // step 1: stakeholders
   function addStakeholder() {
     content.value.stakeholders.push(newStakeholder.value); 
     newStakeholder.value = {name: "", type: "", goals: ""};
@@ -255,9 +263,11 @@
       inconcrete.value = {...inconcrete.value, [field]: null};
     }
   }
-  function nextStep(ind: number) {
-    currentStep.value = ind;
-  }
+
+  // step 2: SPIN
+  const spinComplete = computed(() => (content.value.situation?.trim() && content.value.problem?.trim() && content.value.downsides?.trim() && content.value.focus?.trim()));
+
+  // step 3: journey steps
   function addJourneyStep() {
     content.value.steps.push({
       title: newStep.value,
@@ -274,6 +284,8 @@
     console.log(content.value.steps);
     content.value.steps[ev.i].title = ev.title;
   }
+
+  // (end of steps)
 
   // store in localStorage
   const LS_KEY = "journey1st";
