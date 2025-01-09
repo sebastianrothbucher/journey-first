@@ -118,7 +118,7 @@
           <input placeholder=" " class="semicompact" v-model="s.needed"/>
           <span style="white-space: nowrap;">Needed for step {{ i + 1 }}: {{ s.title }}</span>
         </label>
-        <button class="matter-button-outlined">create story</button> <!-- create story button by Bedrock -->
+        <button class="matter-button-outlined" :disabled="!ticketMakesSense(s)" @click="showCreateStory(s)">create story</button> <!-- create story button by Bedrock -->
       </div>      
       <hr />
       <div>
@@ -162,7 +162,7 @@
         <h3>Use GDrive to store journeys</h3>
         <p>With or without Gdrive, a copy is stored temporarily in your browser - but you can't use it anywhere else and there's no guarantee the browser does not do housekeeping and removes things stored by this site. So, you can store journeys to your GDrive as well. When opting for that, you'll be asked to give this app permission to save and read it's <em>own</em> files. What that means: you can later open files you saved with this tool. But this tool will not be able to see other files in your GDrive.</p>
         <div>
-          <button class="matter-button-contained" @click="firstGdriveLogin()">First GDrive login</button>
+          <button class="matter-button-outlined" @click="firstGdriveLogin()">First GDrive login</button>
           {{ firstLoginOk ? 'Login successful' : '' }}
         </div>
       </div>
@@ -190,6 +190,20 @@
             <li v-if="(!loadingFileList) && existingFiles.length < 1">(none so far)</li>
             <li v-for="(f, i) in existingFiles" :key="i" style="cursor: pointer; " @click="loadGdrive(f)">{{ f.name }}</li>
           </ul>
+        </div>
+      </div>
+    </dialog>
+    <dialog ref="createStory" style="top: 10vh">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideCreateStory">X</div>
+      <div style="width: 70vw">
+        <h3>Create story</h3>
+        <p>JourneyFirst helps you to create tasks so the team can get going. You can create a task description with all helpful info in it. When you are an Asana user, you can also create tasks directly.</p>
+        <textarea v-model="storyDescription" style="min-height: 120px; width: 100%;"></textarea>
+        <div v-if="storyDescription">
+          <button v-if="asanaLoginOk" class="matter-button-contained" @click="createInAsana()">Add to Asana</button>
+          {{ asanaCreatedMessage ? 'Task created' : '' }}
+          <button v-if="!asanaLoginOk" class="matter-button-outlined" @click="asanaLogin()">Asana login</button>
+          {{ asanaLoggedInMessage ? 'Login successful' : '' }}
         </div>
       </div>
     </dialog>
@@ -368,7 +382,101 @@
     const newContent = await gdrive.loadFile(f.id);
     content.value = newContent;
     currentGdrive.value = f;
+    setTimeout(() => {
+      hideLoadSave();
+    }, 3_000);
   }
+
+  const createStoryRef = useTemplateRef<HTMLDialogElement>('createStory');
+  const storyDescription = ref("");
+  const asanaState = ref(-1);
+  const asanaToken = ref("");
+  const asanaLoginOk = computed(() => !! asanaToken.value);
+  const asanaLoggedInMessage = ref(false);
+  const asanaCreatedMessage = ref(false);
+  function ticketMakesSense(step: Step) {
+    return (!!step.needed) && (!["n/a", "nth", "nothing"].includes(step.needed));
+  }
+  async function showCreateStory(step: Step) {
+    if (!ticketMakesSense(step)) {
+      return;
+    }
+    // TODO: call Bedrock - but could keep below fallback
+    storyDescription.value = step.needed + 
+      "\n\nFor a customer journey consisting of these steps: " + 
+      content.value.steps.map(s => s.title).join(", ") + 
+      " we need to extend the step for " + step.title + 
+      "\n\nWe already have " + (step.exists || "nothing") +
+      " and now we need to create " + step.needed; 
+    createStoryRef.value!.show();
+  }
+  function hideCreateStory() {
+    createStoryRef.value!.close();
+  }
+  function asanaLogin() {
+    let pat = localStorage.getItem(LS_KEY + "_asana_pat");
+    if (!pat) {
+      pat = prompt("Asana PAT?");
+      if (!pat) {
+        return;
+      }
+      localStorage.setItem(LS_KEY + "_asana_pat", pat);
+    }
+    asanaToken.value = pat;
+    return;
+    asanaState.value = Math.round(Math.random() * 1_000_000_000);
+    const redirect = new URL("asana.html", location.href).toString(); //.replace("localhost:8080", "localhost");
+    window.open("https://app.asana.com/-/oauth_authorize?response_type=code&client_id=1209120614263127&redirect_uri=" + encodeURIComponent(redirect) + "&state=" + asanaState.value, "asana", "toolbar=no, width=650, height=750");
+  }
+  // vue global event handler for onMessage
+  async function asanaMessageListener(ev: MessageEvent<{asanaCallbackUrl: string}>) {
+    if ((ev.origin !== location.origin) || (!ev.data.asanaCallbackUrl)) {
+      return;
+    }
+    const queryParams: {[key: string]: string} = {};
+    new URL(ev.data.asanaCallbackUrl).search?.substring(1).split("&")
+      .map(param => param.split("="))
+      .forEach(([k, v]) => queryParams[k] = decodeURIComponent(v));
+    
+    if (parseInt(queryParams['state']) !== asanaState.value) {
+      alert('Login failed, differing states');
+      return;
+    }
+    if (!queryParams["code"]) {
+      alert('Login failed, no code (token)');
+      return;
+    }
+    return; // now we need a token exchange - TODO: do that via a backend w/ sep. throttle budget
+    asanaLoggedInMessage.value = true;
+    setTimeout(() => asanaLoggedInMessage.value = false, 3_000);
+  }
+  onMounted(() => window.addEventListener("message", asanaMessageListener));
+  onBeforeUnmount(() => window.removeEventListener("message", asanaMessageListener));
+  async function createInAsana() {
+    if (!storyDescription.value) {
+      return;
+    }
+    const storyTitle = storyDescription.value.split(/\s+/).reduce((p, c) => p.length < 50 ? p + " " + c : p, "").trim();
+    // create a task in Asana with the description
+    const taskRes = await fetch('https://app.asana.com/api/1.0/tasks', {
+      method: 'POST',
+      headers: {
+        accept: 'application/json', 
+        'content-type': 'application/json',
+        authorization: 'Bearer ' + asanaToken.value,
+      },
+      body: JSON.stringify({data: {
+        name: storyTitle,
+        notes: storyDescription.value,
+        workspace: "1209120539538761", // simple workspace (could also be project or parent task - and of course ask)
+      }}),
+    });
+    if (taskRes.status === 201) {
+      asanaCreatedMessage.value = true;
+      setTimeout(() => asanaCreatedMessage.value = false, 3_000);
+    }
+  }
+
   // TODO: error handling - press F5 to reload, etc.
 </script>
 <style scoped lang="scss">

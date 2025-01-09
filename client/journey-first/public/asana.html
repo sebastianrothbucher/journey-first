@@ -1,0 +1,5 @@
+<p>You're logged on! This window closes momentarily...</p>
+<script>
+  window.opener.postMessage({asanaCallbackUrl: location.href}, location.origin);
+  setTimeout(() => window.close(), 1_000);
+</script>
