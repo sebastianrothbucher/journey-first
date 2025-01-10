@@ -446,7 +446,7 @@
       alert('Login failed, no code (token)');
       return;
     }
-    return; // now we need a token exchange - TODO: do that via a backend w/ sep. throttle budget
+    return; // now we need a token exchange - TODO: do that via a backend w/ sep. throttle budget (never hand out tokens, use DynamoDB w/ TTL and have "createTask" API with limited fields; hash of token = ID, goes to client in lieu of own JWT = limited blast radius, no secrets shared)
     asanaLoggedInMessage.value = true;
     setTimeout(() => asanaLoggedInMessage.value = false, 3_000);
   }
