@@ -1,7 +1,7 @@
 <template>
   <div class="journey">
     <div style="float: right; ">
-      <button class="matter-button-contained" @click="showLoadSave()">Load/Save</button>
+      <button class="matter-button-contained" @click="showLoadSave()">Load/Save/New</button>
     </div>
     <h2>Journey <em>first</em></h2>
     <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
@@ -190,6 +190,9 @@
             <li v-if="(!loadingFileList) && existingFiles.length < 1">(none so far)</li>
             <li v-for="(f, i) in existingFiles" :key="i" style="cursor: pointer; " @click="loadGdrive(f)">{{ f.name }}</li>
           </ul>
+          <hr />
+          <h3>New</h3>
+          <button class="matter-button-outlined" @click="newJourney()">New Journey</button>
         </div>
       </div>
     </dialog>
@@ -385,6 +388,22 @@
     setTimeout(() => {
       hideLoadSave();
     }, 3_000);
+  }
+  function newJourney() {
+    if (!confirm("Discard what's not yet saved and create new?")) {
+      return;
+    }
+    content.value = {
+      stakeholders: [],
+      situation: "",
+      problem: "",
+      downsides: "",
+      focus: "",
+      steps: [],
+      overallSignoff: false,
+    }
+    currentGdrive.value = null;
+    hideLoadSave();
   }
 
   const createStoryRef = useTemplateRef<HTMLDialogElement>('createStory');
