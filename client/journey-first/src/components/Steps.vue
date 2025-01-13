@@ -1,9 +1,9 @@
 <template>
   <div class="steps">
     <div class="step" v-for="(s, i) of props.steps" :key="i">
-      <span class="title" :class="{editing, readonly}" @click="startEditing(i)">
-        {{ editing ? null : s }}
-        <input ref="editInput" v-if="editing" v-model="editText" @keydown.esc="endEditing(false)" @keydown.enter="endEditing(true)" @blur="endEditing(true)"/>
+      <span class="title" :class="{editing: editIdx === i, readonly}" @click="startEditing(i)">
+        {{ editIdx === i ? null : s }}
+        <input ref="editInput" v-if="editIdx === i" v-model="editText" @keydown.esc="endEditing(false)" @keydown.enter="endEditing(true)" @blur="endEditing(true)"/>
       </span>
     </div>
   </div>
@@ -14,11 +14,10 @@ const props = defineProps(['steps', 'readonly']);
 const emit = defineEmits(['titleRename']);
 
 const editIdx = ref(-1);
-const editing = computed(() => editIdx.value >= 0);
 const editText = ref(null);
 const editInput = useTemplateRef<HTMLInputElement[]>('editInput'); // array b/c of v-if
 function startEditing(i: number) {
-  if (editing.value || props.readonly) {
+  if ((editIdx.value >= 0) || props.readonly) {
     return;
   }
   editIdx.value = i;
@@ -29,7 +28,7 @@ function startEditing(i: number) {
   });
 }
 function endEditing(save: boolean) {
-  if ((!editing.value) || props.readonly) {
+  if ((editIdx.value < 0) || props.readonly) {
     return;
   }
   if (save) {

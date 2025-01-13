@@ -1,8 +1,8 @@
 declare var google: any, CLIENT_ID: string, SCOPES: string[], gapi: any;
 
 let access_token: string|null = null;
-export async function ensureAuth() {
-  if (access_token) {
+export async function ensureAuth(forceRedo?: boolean) {
+  if (access_token && (!forceRedo)) {
     return;
   }
   return new Promise(resolve => google.accounts.oauth2.initTokenClient({
@@ -65,17 +65,26 @@ export async function updateFileContent(id: string, content: any) {
   console.log(response);
   return response.result;
 }
-export async function loadFileList(): Promise<{id: string, name: string}[]> {
-  const response: {result: {files: {id: string, name: string}[]}} = await gapi.client.request({
-    path: '/drive/v3/files',
-    method: 'GET',
-    params: { includeItemsFromAllDrives: true, supportsAllDrives: true, orderBy: 'name', pageSize: 100 },
-    headers: {
-      'Authorization': 'Bearer ' + access_token,
-    },
-  });
-  console.log(response);
-  return response.result.files;
+export async function loadFileList(secondAttempt?: boolean): Promise<{id: string, name: string}[]> { // might call after long time
+  try {
+    const response: {result: {files: {id: string, name: string}[]}} = await gapi.client.request({
+      path: '/drive/v3/files',
+      method: 'GET',
+      params: { includeItemsFromAllDrives: true, supportsAllDrives: true, orderBy: 'name', pageSize: 100 },
+      headers: {
+        'Authorization': 'Bearer ' + access_token,
+      },
+    });
+    console.log(response);
+    return response.result.files;
+  } catch (_e) {
+    if (secondAttempt) {
+      throw _e;
+    } else {
+      await ensureAuth(true);
+      return loadFileList(true);
+    }
+  }
 }
 export async function loadFile(id: string): Promise<any> {
   const response: {body: string} = await gapi.client.request({
