@@ -205,7 +205,7 @@
         <div v-if="storyDescription">
           <button v-if="asanaLoginOk" class="matter-button-contained" @click="createInAsana()">Add to Asana</button>
           {{ asanaCreatedMessage ? 'Task created' : '' }}
-          <button v-if="!asanaLoginOk" class="matter-button-outlined" @click="asanaLogin()">Asana login</button>
+          <button v-if="!asanaLoginOk" class="matter-button-outlined" @click="asanaLogin()">Asana login (alpha)</button>
           {{ asanaLoggedInMessage ? 'Login successful' : '' }}
         </div>
       </div>
@@ -304,6 +304,7 @@
   const LS_KEY = "journey1st";
   let lsInterval:number = -1;
   onMounted(() => {
+    // TOODO: window.dataLayer?.push()
     if (localStorage.getItem(LS_KEY)) {
       content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
       currentGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_file') || "null");
@@ -338,6 +339,7 @@
   const existingFiles = ref<{id: string, name: string}[]>([]);
   const loadingFileList = ref(false);
   async function showLoadSave() {
+    // TOODO: window.dataLayer?.push()
     if (!okForGdrive.value) {
       gdriveOk.value!.show(); // nothing else
       return;
@@ -360,6 +362,7 @@
   const savingMessage = ref(false);
   const saving = ref(false);
   async function saveGdrive() {
+    // TOODO: window.dataLayer?.push()
     if (!newFilename.value?.trim()) {
       return;
     }
@@ -434,8 +437,9 @@
   }
   function asanaLogin() {
     let pat = localStorage.getItem(LS_KEY + "_asana_pat");
+    // TOODO: window.dataLayer?.push()
     if (!pat) {
-      pat = prompt("Asana PAT?");
+      pat = prompt("Working on a proper integration. Until then: you need a Personal Access Token (PAT) for Asana to use this feature. Specify the PAT here (or cancel, that's ok)");
       if (!pat) {
         return;
       }
