@@ -137,7 +137,7 @@
       <div>
         <div>
           <label class="matter-checkbox">
-              <input type="checkbox">
+              <input type="checkbox" v-model="content.overallSignoff">
               <span>We do contribute significantly to the original goal</span>
           </label>
         </div>
