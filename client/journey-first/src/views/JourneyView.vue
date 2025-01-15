@@ -22,10 +22,10 @@
         <label class="matter-radio"><input type="radio" name="stype" value="influencer" v-model="newStakeholder.type" /><span>Influencer</span></label>
         <label class="matter-radio"><input type="radio" name="stype" value="decisionmaker" v-model="newStakeholder.type" /><span>Decision maker</span></label> <br />
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. add service to more contracts signed, grow service revenue" @blur="checkConcrete('stakeholderGoals', $event.target.value)" v-model="newStakeholder.goals"></textarea>
+            <textarea placeholder="e.g. add service to more contracts signed, grow service revenue" @blur="checkConcrete('stakeholderGoals', $event.target.value, true)" v-model="newStakeholder.goals"></textarea>
             <span>goals of this stakeholder</span>
         </label> <br />
-        <span v-if="inconcrete['stakeholderGoals']">{{ inconcrete['stakeholderGoals'] }} <br /></span>
+        <span class="coach" v-if="inconcrete['stakeholderGoals']">{{ inconcrete['stakeholderGoals'] }} <br /></span>
         <button class="matter-button-outlined" :disabled="!newStakeholder.name" @click="addStakeholder()">add</button> <!-- auto-add last if filled -->
       </div>
       <hr />
@@ -39,31 +39,31 @@
       <p>In this step, describe the sitution as it is now and why/how it should be improved</p>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. we lose touch after initial sale and shipment fo the product" v-model="content.situation" @blur="checkConcrete('situation', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. we lose touch after initial sale and shipment fo the product" v-model="content.situation" @blur="checkConcrete('situation', $event.target.value, true)"></textarea>
             <span>Describe the situation as of now</span>
         </label><br />
-        <span v-if="inconcrete['situation']">{{ inconcrete['situation'] }} <br /></span>
+        <span class="coach" v-if="inconcrete['situation']">{{ inconcrete['situation'] }} <br /></span>
       </div>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. we miss out on high-margin follow-up business + we don't really help them along the way" v-model="content.problem" @blur="checkConcrete('problem', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. we miss out on high-margin follow-up business + we don't really help them along the way" v-model="content.problem" @blur="checkConcrete('problem', $event.target.value, 'problem')"></textarea>
             <span>What is wrong with that?</span>
         </label><br />
-        <span v-if="inconcrete['problem']">{{ inconcrete['problem'] }} <br /></span>
+        <span class="coach" v-if="inconcrete['problem']">{{ inconcrete['problem'] }} <br /></span>
       </div>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. customers switch to competition and stay there" v-model="content.downsides" @blur="checkConcrete('downsides', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. customers switch to competition and stay there" v-model="content.downsides" @blur="checkConcrete('downsides', $event.target.value, true)"></textarea>
             <span>What if this is not fixed?</span>
         </label><br />
-        <span v-if="inconcrete['downsides']">{{ inconcrete['downsides'] }} <br /></span>
+        <span class="coach" v-if="inconcrete['downsides']">{{ inconcrete['downsides'] }} <br /></span>
       </div>
       <div>
         <label class="matter-textfield-filled">
-            <textarea placeholder="e.g. follow up and offer tailored add-ons / services" v-model="content.focus" @blur="checkConcrete('focus', $event.target.value)"></textarea>
+            <textarea placeholder="e.g. follow up and offer tailored add-ons / services" v-model="content.focus" @blur="checkConcrete('focus', $event.target.value, true)"></textarea>
             <span>So: what should <em>this</em> initiative be focused on?</span>
         </label><br />
-        <span v-if="inconcrete['focus']">{{ inconcrete['focus'] }} <br /></span>
+        <span class="coach" v-if="inconcrete['focus']">{{ inconcrete['focus'] }} <br /></span>
       </div>
       <hr />
       <div>
@@ -99,7 +99,7 @@
             <textarea placeholder="e.g. Mike gets to our landing page by searching 'shop conversion' or Laura accepts the offer for an upgrade by going to our portal and choosing 'premium'" v-model="s.walkthrough" @blur="checkConcrete('walkthrough' + i, $event.target.value)"></textarea>
             <span>Give an example for step {{ i+1 }}: {{ s.title }}</span>
         </label><br />
-        <span v-if="inconcrete['walkthrough' + i]">{{ inconcrete['walkthrough' + i] }}<br /></span>
+        <span class="coach" v-if="inconcrete['walkthrough' + i]">{{ inconcrete['walkthrough' + i] }}<br /></span>
       </div>
       <hr />
       <div>
@@ -263,17 +263,49 @@
   function addStakeholder() {
     content.value.stakeholders.push(newStakeholder.value); 
     newStakeholder.value = {name: "", type: "", goals: ""};
+    delete inconcreteLastVal['stakeholderGoals'];
   }
   function removeStakeholer(i:number) {
     content.value.stakeholders.splice(i, 1);
   }
-  function checkConcrete(field: string, value: string) {
+  const inconcreteLastVal: {[field: string]: string} = {};
+  async function checkConcrete(field: string, value: string, relaxed?: boolean) {
+    if (!value?.trim()) {
+      return;
+    }
+    if (inconcreteLastVal[field] === value) {
+      return;
+    }
+    inconcreteLastVal[field] = value;
+    inconcrete.value = {...inconcrete.value, [field]: 'checking...'};
+    try {
+      const res = await fetch('https://xvptko3ya9.execute-api.eu-central-1.amazonaws.com/prod/check-concrete', {
+        body: JSON.stringify({scenario: value, relaxed}),
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'X-API-Key': 'DwMuezU7Zc4UV0iTZHiZz3SOWjhSFfGz6eqjsIZL', // on purpose, it is massively throttled (and there is no other)
+        },
+      });
+      if (res.ok) {
+        const resBody = await res.json();
+        inconcrete.value = {...inconcrete.value, [field]: resBody.details};
+      } else {
+        console.error(res);
+        checkConcreteFallback(field, value);
+      }
+    } catch(_e) {
+      console.error(_e);
+      checkConcreteFallback(field, value);
+    }
+  }
+  function checkConcreteFallback(field: string, value: string) {
     if (value.includes("any")) { // TODO: call claude (fall back on this if error)
       inconcrete.value = {...inconcrete.value, [field]: "'Any' is not concrete enough"};
     } else if (value.includes("some")) { // TODO: call claude (fall back on this if error)
       inconcrete.value = {...inconcrete.value, [field]: "'Some' is not concrete enough"};
     } else {
-      inconcrete.value = {...inconcrete.value, [field]: null};
+      inconcrete.value = {...inconcrete.value, [field]: "(looks OK from quick glance)"};
     }
   }
 
@@ -525,5 +557,9 @@
   }
   input[type="text"].compact, input:not([type]).compact {
     width: 400px;
+  }
+  .coach {
+    background: lightyellow;
+    font-size: 0.9em;
   }
 </style>
