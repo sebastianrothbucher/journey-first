@@ -20,31 +20,37 @@ export const handler = async (event: APIGatewayProxyEvent) => {
   }
   scenarioText = scenarioText.substring(0, 400); // avoid denial of wallet
 
-  const prompt = "\n\nHuman: Is the following scenario concrete (and substantial) or vague? Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenarioText + "\n\nAssistant: "
+  const promptMessage = "Is the following scenario concrete (and substantial) or vague? Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenarioText;
+  // old const prompt = "\n\nHuman: " + promptMessage + "\n\nAssistant: "
 
   const command = new InvokeModelCommand({
-    modelId: 'anthropic.claude-v2',
+    modelId: 'anthropic.claude-3-haiku-20240307-v1:0',
     contentType: 'application/json',
     accept: 'application/json',
     body: JSON.stringify({
-      prompt,
-      max_tokens_to_sample: 300,
+      // old prompt,
+      messages: [{
+        role: 'user',
+        content: [{ type: 'text', text: promptMessage }],
+      }],
+      anthropic_version: 'bedrock-2023-05-31',
+      max_tokens: 300,
     }),
   });
 
   const response = await bedrockRuntime.send(command);
   const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-  const completion = responseBody.completion.trim().toLowerCase();
+  const completion = responseBody.content[0].text; // old responseBody.completion;
 
-  if (completion.startsWith('concrete')) {
+  if (completion.trim().toLowerCase().startsWith('concrete')) {
     return {
       statusCode: 200,
-      body: JSON.stringify({ concrete: true, details: responseBody.completion }),
+      body: JSON.stringify({ concrete: true, details: completion }),
     };
-  } else if (completion.startsWith('vague')) {
+  } else if (completion.trim().toLowerCase().startsWith('vague')) {
     return {
       statusCode: 200,
-      body: JSON.stringify({ concrete: false, details: responseBody.completion }),
+      body: JSON.stringify({ concrete: false, details: completion }),
     };
   } else {
     return {
