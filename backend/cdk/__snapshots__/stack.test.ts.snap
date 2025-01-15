@@ -48,7 +48,7 @@ exports[`Snapshot Test 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "95125e1650baaff1b966ddc45aeabd45796680bcede98868f9e08635b06d2e72.zip",
+          "S3Key": "c46eda2c6ca859bf7f345679a99a3ec1ec45f112a2edf3256487396b1bd981dd.zip",
         },
         "Handler": "index.handler",
         "Role": {
@@ -58,6 +58,7 @@ exports[`Snapshot Test 1`] = `
           ],
         },
         "Runtime": "nodejs18.x",
+        "Timeout": 5,
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -168,7 +169,7 @@ exports[`Snapshot Test 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "JourneyFirstAPIDeploymentAF6C7BE8d6b26e49e62447a5fde972d2252be869": {
+    "JourneyFirstAPIDeploymentAF6C7BE83fe6d7b0135f46a1dff0dba5569d4e97": {
       "DependsOn": [
         "JourneyFirstAPIcheckconcreteOPTIONSD294A4CF",
         "JourneyFirstAPIcheckconcretePOST263FF349",
@@ -188,7 +189,7 @@ exports[`Snapshot Test 1`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "JourneyFirstAPIDeploymentAF6C7BE8d6b26e49e62447a5fde972d2252be869",
+          "Ref": "JourneyFirstAPIDeploymentAF6C7BE83fe6d7b0135f46a1dff0dba5569d4e97",
         },
         "RestApiId": {
           "Ref": "JourneyFirstAPI1C8D3DDE",
@@ -237,9 +238,19 @@ exports[`Snapshot Test 1`] = `
           "IntegrationResponses": [
             {
               "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-API-Key'",
                 "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Origin": "'http://localhost:8080'",
+                "method.response.header.Vary": "'Origin'",
+              },
+              "ResponseTemplates": {
+                "application/json": "#set($origin = $input.params().header.get("Origin"))
+#if($origin == "")
+  #set($origin = $input.params().header.get("origin"))
+#end
+#if($origin == "https://sebastianrothbucher.github.io")
+  #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin)
+#end",
               },
               "StatusCode": "204",
             },
@@ -255,6 +266,7 @@ exports[`Snapshot Test 1`] = `
               "method.response.header.Access-Control-Allow-Headers": true,
               "method.response.header.Access-Control-Allow-Methods": true,
               "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Vary": true,
             },
             "StatusCode": "204",
           },
@@ -401,7 +413,7 @@ exports[`Snapshot Test 1`] = `
           },
         ],
         "Quota": {
-          "Limit": 20,
+          "Limit": 100,
           "Period": "WEEK",
         },
         "UsagePlanName": "JourneyFirstUsagePlan",

@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LambdaRestApi, UsagePlan } from 'aws-cdk-lib/aws-apigateway'; 
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import * as checkConcreteDef from '../lambdas/check-concrete';
 
 export class CheckConcreteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -18,26 +19,27 @@ export class CheckConcreteStack extends cdk.Stack {
           "@aws-sdk/*",
         ],
       },
+      timeout: cdk.Duration.seconds(5),
     });
 
     const httpApi = new LambdaRestApi(this, 'JourneyFirstAPI', {
       handler: checkConcreteFunction,
-      proxy: false,
+      proxy: false, // confusing - just means we define lambdas individually
     });
     const checkConcreteIntegration = httpApi.root.addResource('check-concrete');
     checkConcreteIntegration.addMethod('POST', undefined, {
-      apiKeyRequired: true,
+      apiKeyRequired: true, // !!!
     });
     checkConcreteIntegration.addCorsPreflight({
-      allowOrigins: ['*'],
-      allowMethods: ['POST', 'OPTIONS'],
-      allowHeaders: ['Content-Type', 'Authorization'],
+      allowOrigins: checkConcreteDef.CORS_ALLOWED_HOSTS,
+      allowMethods: checkConcreteDef.CORS_ALLOWED_METHODS,
+      allowHeaders: checkConcreteDef.CORS_ALLOWED_HEADERS,
     });
 
     const usagePlan = new UsagePlan(this, 'UsagePlan', {
       name: 'JourneyFirstUsagePlan',
       quota: {
-        limit: 20,
+        limit: 100,
         period: cdk.aws_apigateway.Period.WEEK,
       },
     });

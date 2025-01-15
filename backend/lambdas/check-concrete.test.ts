@@ -5,7 +5,7 @@ import { handler } from './check-concrete';
 const bedrockMock = mockClient(BedrockRuntimeClient);
 bedrockMock.on(InvokeModelCommand).resolves({
   body: (new TextEncoder()).encode(JSON.stringify({
-    completion: 'vague, b/c it is BS',
+    content: [{text: 'vague, b/c it is BS'}],
     stop_reason: 'stop',
     stop: '!',
   })),
@@ -13,7 +13,7 @@ bedrockMock.on(InvokeModelCommand).resolves({
 
 describe('bedrock', () => {
   it('should call bedrock and handle result', async () => {
-    const response = await handler({body: JSON.stringify({scenario: 'what is the meaning of life?'})} as any);
+    const response = await handler({headers: {}, body: JSON.stringify({scenario: 'what is the meaning of life?'})} as any);
     expect(response).toBeDefined();
     expect(response.statusCode).toBe(200);
     expect(response.body).toMatch(/"concrete":\s*false.*"details":\s*"vague, b\/c it is BS/);
