@@ -196,7 +196,7 @@
         </div>
       </div>
     </dialog>
-    <dialog ref="createStory" style="top: 10vh">
+    <dialog ref="createStory" style="position: fixed; top: 10vh">
       <div style="float: right; padding: 10px; cursor: pointer;" @click="hideCreateStory">X</div>
       <div style="width: 70vw">
         <h3>Create story</h3>
