@@ -1,12 +1,14 @@
 <template>
   <div class="journey">
     <div style="float: right; ">
+      <button class="matter-button-outlined" :disabled="coachOptedIn" @click="coachOk.show()">Coach opt-in</button>
       <button class="matter-button-contained" @click="showLoadSave()">Load/Save/New</button>
     </div>
     <h2>Journey <em>first</em></h2>
     <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
+    And yes, feel free to just use it - I don't want any money for it, it's my contribution to the community. Also means I don't store anything or provide a full service. This here is all there is.<br/>
     Have feedback or ideas? Don't hesitate to <a href="https://docs.google.com/forms/d/e/1FAIpQLScZ5Qhk8jllh49di48ehdxgQpVuSCsFo7E8WWFwO-Nxv0GkUA/viewform?usp=header" target="_blank">share your thoughts any time</a>! Also feel free to start a (personal) discussion and <a href="https://github.com/sebastianrothbucher/journey-first/issues" target="_blank">open an Issue</a>! Anyhow your feedback is appreciated.<br/>
-    <small>This page is for demo purposes only; here is absolutely, positively, <strong>zero warranty</strong> - you are using this tool <strong>at your own risk.</strong>. <a href="#">MIT License</a> applies - <a href="#">Code</a></small></p><!-- TODO: kick journeymap when finished -->
+    <small>This page is for demo purposes only; here is absolutely, positively, <strong>zero warranty</strong> - you are using this tool <strong>at your own risk.</strong>. <a href="https://github.com/sebastianrothbucher/journey-first/blob/main/LICENSE" target="_blank">MIT License</a> applies - <a href="https://github.com/sebastianrothbucher/journey-first/" target="_blank">Code</a></small></p>
     <details :open="(!currentStep) || (1 === currentStep)">
       <summary><h3 class="detailheader">Stakeholders</h3></summary>
       <p>In this step, shed some light on who your stakeholders are - both people you directly work with as well as those further out who have skin in the game.</p>
@@ -156,11 +158,24 @@
       </div>
     </details>
     <!-- dialog -->
+    <dialog ref="coachOk" style="top: 10vh">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideCoachOk">X</div>
+      <div style="width: 70vw">
+        <h3>Opt in for the "Coach"</h3>
+        <p>The "Coach" feature uses <a href="https://aws.amazon.com/bedrock/" target="_blank">Bedrock</a> on AWS as engine to suggest improvements to the descriptions you put it - to <em>coach</em> become better at Customer Journeys. I will not store or otherwise use your data - I only call the AI and return a result, that's it. You can check out the <a href="https://github.com/sebastianrothbucher/journey-first/blob/main/backend/lambdas/check-concrete.ts" target="_blank">source code</a> if you want to dive into details. Nonetheless, you'll use the feature at your own risk and discretion. This tool is evidently <em>not</em> about PII - just don't put it in.</p>
+        <p>Also, b/c Bedrock is a paid service, there is a usage limit per month over everyone using JourneyFirst. Once the limit is up, it is up - and you'll get simplified feedback, sorry.</p>
+        <div>
+          <button class="matter-button-outlined" @click="coachOptIn()">Opt in for coach</button>
+          {{ coachOptedIn ? 'Opted in' : '' }}
+        </div>
+      </div>
+    </dialog>
     <dialog ref="gdriveOk" style="top: 10vh">
       <div style="float: right; padding: 10px; cursor: pointer;" @click="hideGdriveOk">X</div>
       <div style="width: 70vw">
         <h3>Use GDrive to store journeys</h3>
         <p>With or without Gdrive, a copy is stored temporarily in your browser - but you can't use it anywhere else and there's no guarantee the browser does not do housekeeping and removes things stored by this site. So, you can store journeys to your GDrive as well. When opting for that, you'll be asked to give this app permission to save and read it's <em>own</em> files. What that means: you can later open files you saved with this tool. But this tool will not be able to see other files in your GDrive.</p>
+        <p>As long as JourneyFirst is not approved by Google, the below button likely will not go anywhere. But, if you like and are willing to risk it, you can <a href="https://docs.google.com/forms/d/e/1FAIpQLSdiROB1EGEGQbvvHdRzs6jEex3G-HYgymQPVqY8biotelcASA/viewform?usp=dialog" target="_blank">ask to be added to the list of trial users</a>.</p>
         <div>
           <button class="matter-button-outlined" @click="firstGdriveLogin()">First GDrive login</button>
           {{ firstLoginOk ? 'Login successful' : '' }}
@@ -277,6 +292,10 @@
       return;
     }
     inconcreteLastVal[field] = value;
+    if (!coachOptedIn.value) {
+      checkConcreteFallback(field, value, ' - click "Coach opt-in" for way more support');
+      return;
+    }
     inconcrete.value = {...inconcrete.value, [field]: 'checking...'};
     try {
       const res = await fetch('https://xvptko3ya9.execute-api.eu-central-1.amazonaws.com/prod/check-concrete', {
@@ -290,6 +309,8 @@
       if (res.ok) {
         const resBody = await res.json();
         inconcrete.value = {...inconcrete.value, [field]: resBody.details};
+      } else if (429 === res.status) { // "too many requests" - API key limit exceeded
+        checkConcreteFallback(field, value, ' - coach budget used up');
       } else {
         console.error(res);
         checkConcreteFallback(field, value);
@@ -299,13 +320,13 @@
       checkConcreteFallback(field, value);
     }
   }
-  function checkConcreteFallback(field: string, value: string) {
+  function checkConcreteFallback(field: string, value: string, addition: string = "") {
     if (value.includes("any")) { // TODO: call claude (fall back on this if error)
-      inconcrete.value = {...inconcrete.value, [field]: "'Any' is not concrete enough"};
+      inconcrete.value = {...inconcrete.value, [field]: "'Any' is not concrete enough" + addition};
     } else if (value.includes("some")) { // TODO: call claude (fall back on this if error)
-      inconcrete.value = {...inconcrete.value, [field]: "'Some' is not concrete enough"};
+      inconcrete.value = {...inconcrete.value, [field]: "'Some' is not concrete enough" + addition};
     } else {
-      inconcrete.value = {...inconcrete.value, [field]: "(looks OK from quick glance)"};
+      inconcrete.value = {...inconcrete.value, [field]: "(looks OK from quick glance)" + addition};
     }
   }
 
@@ -341,14 +362,29 @@
       content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
       currentGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_file') || "null");
       okForGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_gdrive') || "false");
+      coachOptedIn.value = JSON.parse(localStorage.getItem(LS_KEY + '_coach') || "false");
     }
     lsInterval = setInterval(() => {
       localStorage.setItem(LS_KEY, JSON.stringify(content.value));
       localStorage.setItem(LS_KEY + '_file', JSON.stringify(currentGdrive.value));
       localStorage.setItem(LS_KEY + '_gdrive', JSON.stringify(okForGdrive.value));
+      localStorage.setItem(LS_KEY + '_coach', JSON.stringify(coachOptedIn.value));
     }, 2000);
   });
   onBeforeUnmount(() => clearInterval(lsInterval));
+
+  // only use coach when we got an OK (give generic responses + a hint otherwise)
+  const coachOk = useTemplateRef<HTMLDialogElement>('coachOk');
+  const coachOptedIn = ref(false);
+  function coachOptIn() {
+    coachOptedIn.value = true;
+    setTimeout(() => {
+      hideCoachOk();
+  }, 3_000);
+  }
+  function hideCoachOk() {
+    coachOk.value!.close();
+  }
 
   // store files as "only visible for application" in Gdrive
   const gdriveOk = useTemplateRef<HTMLDialogElement>('gdriveOk');
