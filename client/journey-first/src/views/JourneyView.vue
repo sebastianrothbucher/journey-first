@@ -271,11 +271,13 @@
   const newStep = ref("");
 
   function nextStep(ind: number) {
+    (window as any).dataLayer?.push({event: 'jf-nextStep-' + ind});
     currentStep.value = ind;
   }
 
   // step 1: stakeholders
   function addStakeholder() {
+    (window as any).dataLayer?.push({event: 'jf-addStakeholder'});
     content.value.stakeholders.push(newStakeholder.value); 
     newStakeholder.value = {name: "", type: "", goals: ""};
     delete inconcreteLastVal['stakeholderGoals'];
@@ -285,6 +287,7 @@
   }
   const inconcreteLastVal: {[field: string]: string} = {};
   async function checkConcrete(field: string, value: string, relaxed?: boolean) {
+    (window as any).dataLayer?.push({event: 'jf-checkConcrete'});
     if (!value?.trim()) {
       return;
     }
@@ -335,6 +338,7 @@
 
   // step 3: journey steps
   function addJourneyStep() {
+    (window as any).dataLayer?.push({event: 'jf-addJourneyStep'});
     content.value.steps.push({
       title: newStep.value,
       stepSignoff: false,
@@ -357,7 +361,7 @@
   const LS_KEY = "journey1st";
   let lsInterval:number = -1;
   onMounted(() => {
-    // TOODO: window.dataLayer?.push()
+    (window as any).dataLayer?.push({event: 'jf-started'});
     if (localStorage.getItem(LS_KEY)) {
       content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
       currentGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_file') || "null");
@@ -407,7 +411,7 @@
   const existingFiles = ref<{id: string, name: string}[]>([]);
   const loadingFileList = ref(false);
   async function showLoadSave() {
-    // TOODO: window.dataLayer?.push()
+    (window as any).dataLayer?.push({event: 'jf-loadSave'});
     if (!okForGdrive.value) {
       gdriveOk.value!.show(); // nothing else
       return;
@@ -430,7 +434,7 @@
   const savingMessage = ref(false);
   const saving = ref(false);
   async function saveGdrive() {
-    // TOODO: window.dataLayer?.push()
+    (window as any).dataLayer?.push({event: 'jf-saveGdrive'});
     if (!newFilename.value?.trim()) {
       return;
     }
@@ -450,6 +454,7 @@
     }, 3_000);
   }
   async function loadGdrive(f: {id: string, name: string}) {
+    (window as any).dataLayer?.push({event: 'jf-loadGdrive'});
     if (!confirm("Discard what's not yet saved and load " + f.name + "?")) {
       return;
     }
@@ -461,6 +466,7 @@
     }, 3_000);
   }
   function newJourney() {
+    (window as any).dataLayer?.push({event: 'jf-newJourney'});
     if (!confirm("Discard what's not yet saved and create new?")) {
       return;
     }
@@ -488,6 +494,7 @@
     return (!!step.needed) && (!["n/a", "nth", "nothing"].includes(step.needed));
   }
   async function showCreateStory(step: Step) {
+    (window as any).dataLayer?.push({event: 'jf-createStory'});
     if (!ticketMakesSense(step)) {
       return;
     }
@@ -505,7 +512,7 @@
   }
   function asanaLogin() {
     let pat = localStorage.getItem(LS_KEY + "_asana_pat");
-    // TOODO: window.dataLayer?.push()
+    (window as any).dataLayer?.push({event: 'jf-asanaLogin'});
     if (!pat) {
       pat = prompt("Working on a proper integration. Until then: you need a Personal Access Token (PAT) for Asana to use this feature. Specify the PAT here (or cancel, that's ok)");
       if (!pat) {
@@ -544,6 +551,7 @@
   onMounted(() => window.addEventListener("message", asanaMessageListener));
   onBeforeUnmount(() => window.removeEventListener("message", asanaMessageListener));
   async function createInAsana() {
+    (window as any).dataLayer?.push({event: 'jf-createInAsana'});
     if (!storyDescription.value) {
       return;
     }
