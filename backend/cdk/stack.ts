@@ -39,7 +39,7 @@ export class CheckConcreteStack extends cdk.Stack {
     const usagePlan = new UsagePlan(this, 'UsagePlan', {
       name: 'JourneyFirstUsagePlan',
       quota: {
-        limit: 100,
+        limit: 1000,
         period: cdk.aws_apigateway.Period.WEEK,
       },
     });
