@@ -34,7 +34,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
   scenarioText = scenarioText.substring(0, 500); // avoid denial of wallet
 
   const promptMessage = relaxed ? 
-    ("Check if the following statement contains 'any' or 'some' or other indications of dodging an answer. If that's the case, answer \"vague\" - otherwise answer \"concrete\". Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenarioText) :
+    ("Check if the following statement contains 'any' or 'some' or 'whatever' or 'depends' or other indications of dodging an answer or being vague. If that's the case, answer \"vague\" - otherwise answer \"concrete\". Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenarioText) :
     ("Is the following scenario concrete (and substantial) or vague? Respond with \"concrete\" or \"vague\" plus a reason:\n" + scenarioText);
   // old const prompt = "\n\nHuman: " + promptMessage + "\n\nAssistant: "
 
