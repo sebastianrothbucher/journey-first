@@ -48,7 +48,7 @@ export async function createAndUploadFile(name: string, content: any): Promise<{
     },
     body: multipartRequestBody,
   });
-  console.log(response);
+  //console.log(response);
   return response.result; // id and name are in it
 }
 export async function updateFileContent(id: string, content: any) {
@@ -62,7 +62,7 @@ export async function updateFileContent(id: string, content: any) {
     },
     body: JSON.stringify(content),
   });
-  console.log(response);
+  //console.log(response);
   return response.result;
 }
 export async function loadFileList(secondAttempt?: boolean): Promise<{id: string, name: string}[]> { // might call after long time
@@ -75,7 +75,7 @@ export async function loadFileList(secondAttempt?: boolean): Promise<{id: string
         'Authorization': 'Bearer ' + access_token,
       },
     });
-    console.log(response);
+    //console.log(response);
     return response.result.files;
   } catch (_e) {
     if (secondAttempt) {
@@ -97,6 +97,6 @@ export async function loadFile(id: string): Promise<any> {
       'Authorization': 'Bearer ' + access_token,
     },
   });
-  console.log(response);
+  //console.log(response);
   return JSON.parse(response.body);
 }

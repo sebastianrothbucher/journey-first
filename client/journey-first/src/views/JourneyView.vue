@@ -177,6 +177,20 @@
       <button class="matter-button-outlined" style="width: 100%" @click="showLoadSaveLocal()">Local filesystem</button>
       <button class="matter-button-outlined" style="width: 100%" @click="showLoadSaveGdrive()">Google Drive</button>
     </dialog>
+    <dialog ref="loadSaveLocal" style="top: 10vh">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideLoadSaveLocal()">X</div>
+      <div style="display: flex;">
+        <div style="width: 15vw; border-right: 1px solid lightgrey; padding: 10px;">
+          <h3>Save to local</h3>
+          <button class="matter-button-contained" :disabled="saving" @click="saveLocal()">Save</button>
+          {{ (currentLocal && (!saving) && savingMessage) ? 'Saved as ' + currentLocal : '' }}
+        </div>
+        <div style="width: 15vw; padding: 10px;">
+          <h3>Load from local</h3>
+          <button class="matter-button-contained" @click="loadLocal()">Load</button>
+        </div>
+      </div>
+    </dialog>
     <dialog ref="gdriveOk" style="top: 10vh">
       <div style="float: right; padding: 10px; cursor: pointer;" @click="hideGdriveOk">X</div>
       <div style="width: 70vw">
@@ -354,8 +368,6 @@
     newStep.value = "";
   }
   function renameJourneyStep(ev: {i: number, title: string}) {
-    console.log(ev);
-    console.log(content.value.steps);
     content.value.steps[ev.i].title = ev.title;
   }
 
@@ -369,12 +381,14 @@
     if (localStorage.getItem(LS_KEY)) {
       content.value = JSON.parse(localStorage.getItem(LS_KEY)!);
       currentGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_file') || "null");
+      currentLocal.value = JSON.parse(localStorage.getItem(LS_KEY + '_localfile') || "null");
       okForGdrive.value = JSON.parse(localStorage.getItem(LS_KEY + '_gdrive') || "false");
       coachOptedIn.value = JSON.parse(localStorage.getItem(LS_KEY + '_coach') || "false");
     }
     lsInterval = setInterval(() => {
       localStorage.setItem(LS_KEY, JSON.stringify(content.value));
       localStorage.setItem(LS_KEY + '_file', JSON.stringify(currentGdrive.value));
+      localStorage.setItem(LS_KEY + '_localfile', JSON.stringify(currentLocal.value));
       localStorage.setItem(LS_KEY + '_gdrive', JSON.stringify(okForGdrive.value));
       localStorage.setItem(LS_KEY + '_coach', JSON.stringify(coachOptedIn.value));
     }, 2000);
@@ -411,6 +425,7 @@
   }
   // preliminaries out of the way, actually save
   const loadSaveTargetRef = useTemplateRef<HTMLDialogElement>('loadSaveTarget');
+  const loadSaveLocalRef = useTemplateRef<HTMLDialogElement>('loadSaveLocal');
   const loadSaveGdriveRef = useTemplateRef<HTMLDialogElement>('loadSaveGdrive');
   const okForGdrive = ref(false);
   const existingFiles = ref<{id: string, name: string}[]>([]);
@@ -423,8 +438,12 @@
     loadSaveTargetRef.value!.close();
   }
   async function showLoadSaveLocal() {
+    hideLoadSaveTarget();
+    savingMessage.value = false;
+    loadSaveLocalRef.value!.show();
   }
   function hideLoadSaveLocal() {
+    loadSaveLocalRef.value!.close();
   }
   async function showLoadSaveGdrive() {
     hideLoadSaveTarget();
@@ -448,8 +467,32 @@
   }
   const newFilename = ref<string>("");
   const currentGdrive = ref<{id: string, name: string}|null>(null);
+  const currentLocal = ref<string|null>(null);
   const savingMessage = ref(false);
   const saving = ref(false);
+  async function saveLocal() {
+    (window as any).dataLayer?.push({event: 'jf-saveLocal'});
+    let fileHandle;
+    try {
+      fileHandle = await (window as any).showSaveFilePicker({
+        suggestedName: currentLocal.value || undefined, 
+        types: [{description: 'JSON files', accept: { "application/json": [".json"] },}]
+      });
+    } catch (_e) {
+      return; // just cancelled
+    }
+    saving.value = true;
+    const fileInfo = await fileHandle.getFile();
+    currentLocal.value = fileInfo.name;
+    const writableStream = await fileHandle.createWritable();
+    await writableStream.write(JSON.stringify(content.value));
+    await writableStream.close();
+    saving.value = false;
+    savingMessage.value = true;
+    setTimeout(() => {
+      hideLoadSaveLocal();
+    }, 3_000);
+  }
   async function saveGdrive() {
     (window as any).dataLayer?.push({event: 'jf-saveGdrive'});
     if (!newFilename.value?.trim()) {
@@ -470,6 +513,28 @@
       hideLoadSaveGdrive();
     }, 3_000);
   }
+  async function loadLocal() {
+    (window as any).dataLayer?.push({event: 'jf-loadLocal'});
+    let fileHandle;
+    try {
+      fileHandle = (await (window as any).showOpenFilePicker({
+        multiple: false,
+        types: [{description: 'JSON files', accept: { "application/json": [".json"] },}]
+      }))[0];
+    } catch (_e) {
+      return; // just cancelled
+    }
+    const f = await fileHandle.getFile();
+    if (!confirm("Discard what's not yet saved and load " + f.name + "?")) {
+      return;
+    }
+    const newContent = JSON.parse(await f.text()); // returns file itself
+    content.value = newContent;
+    currentLocal.value = f.name;
+    setTimeout(() => {
+      hideLoadSaveLocal();
+    }, 1_000);
+  }
   async function loadGdrive(f: {id: string, name: string}) {
     (window as any).dataLayer?.push({event: 'jf-loadGdrive'});
     if (!confirm("Discard what's not yet saved and load " + f.name + "?")) {
@@ -480,7 +545,7 @@
     currentGdrive.value = f;
     setTimeout(() => {
       hideLoadSaveGdrive();
-    }, 3_000);
+    }, 1_000);
   }
   function newJourney() {
     (window as any).dataLayer?.push({event: 'jf-newJourney'});
@@ -497,6 +562,7 @@
       overallSignoff: false,
     }
     currentGdrive.value = null;
+    currentLocal.value = null;
   }
 
   const createStoryRef = useTemplateRef<HTMLDialogElement>('createStory');
