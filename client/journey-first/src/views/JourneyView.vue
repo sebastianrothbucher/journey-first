@@ -2,7 +2,8 @@
   <div class="journey">
     <div style="float: right; ">
       <button class="matter-button-outlined" :disabled="coachOptedIn" @click="coachOk.show()">Coach opt-in</button>
-      <button class="matter-button-contained" @click="showLoadSave()">Load/Save/New</button>
+      <button class="matter-button-contained" @click="showLoadSave()">Load/Save</button>
+      <button class="matter-button-outlined" @click="newJourney()">New</button>
     </div>
     <h2>Journey <em>first</em></h2>
     <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
@@ -170,6 +171,12 @@
         </div>
       </div>
     </dialog>
+    <dialog ref="loadSaveTarget" style="top: 10vh; width: 200px;">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideLoadSaveTarget()">X</div>
+      <h3>Load / Save</h3>
+      <button class="matter-button-outlined" style="width: 100%" @click="showLoadSaveLocal()">Local filesystem</button>
+      <button class="matter-button-outlined" style="width: 100%" @click="showLoadSaveGdrive()">Google Drive</button>
+    </dialog>
     <dialog ref="gdriveOk" style="top: 10vh">
       <div style="float: right; padding: 10px; cursor: pointer;" @click="hideGdriveOk">X</div>
       <div style="width: 70vw">
@@ -182,8 +189,8 @@
         </div>
       </div>
     </dialog>
-    <dialog ref="loadSave" style="top: 10vh">
-      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideLoadSave()">X</div>
+    <dialog ref="loadSaveGdrive" style="top: 10vh">
+      <div style="float: right; padding: 10px; cursor: pointer;" @click="hideLoadSaveGdrive()">X</div>
       <div style="display: flex;">
         <div style="width: 40vw; border-right: 1px solid lightgrey; padding: 10px;">
           <h3>Save to GDrive</h3>
@@ -205,9 +212,6 @@
             <li v-if="(!loadingFileList) && existingFiles.length < 1">(none so far)</li>
             <li v-for="(f, i) in existingFiles" :key="i" style="cursor: pointer; " @click="loadGdrive(f)">{{ f.name }}</li>
           </ul>
-          <hr />
-          <h3>New</h3>
-          <button class="matter-button-outlined" @click="newJourney()">New Journey</button>
         </div>
       </div>
     </dialog>
@@ -399,19 +403,32 @@
     okForGdrive.value = true;
     setTimeout(() => {
       hideGdriveOk();
-      showLoadSave();
+      showLoadSaveGdrive();
     }, 3_000);
   }
   function hideGdriveOk() {
     gdriveOk.value!.close();
   }
   // preliminaries out of the way, actually save
-  const loadSaveRef = useTemplateRef<HTMLDialogElement>('loadSave');
+  const loadSaveTargetRef = useTemplateRef<HTMLDialogElement>('loadSaveTarget');
+  const loadSaveGdriveRef = useTemplateRef<HTMLDialogElement>('loadSaveGdrive');
   const okForGdrive = ref(false);
   const existingFiles = ref<{id: string, name: string}[]>([]);
   const loadingFileList = ref(false);
   async function showLoadSave() {
     (window as any).dataLayer?.push({event: 'jf-loadSave'});
+    loadSaveTargetRef.value!.show();
+  }
+  function hideLoadSaveTarget() {
+    loadSaveTargetRef.value!.close();
+  }
+  async function showLoadSaveLocal() {
+  }
+  function hideLoadSaveLocal() {
+  }
+  async function showLoadSaveGdrive() {
+    hideLoadSaveTarget();
+    (window as any).dataLayer?.push({event: 'jf-loadSave-gdrive'});
     if (!okForGdrive.value) {
       gdriveOk.value!.show(); // nothing else
       return;
@@ -420,14 +437,14 @@
       newFilename.value = currentGdrive.value!.name;
     }
     savingMessage.value = false;
-    loadSaveRef.value!.show();
+    loadSaveGdriveRef.value!.show();
     loadingFileList.value = true;
     await gdrive.ensureAuth();
     existingFiles.value = await gdrive.loadFileList();
     loadingFileList.value = false;
   }
-  function hideLoadSave() {
-    loadSaveRef.value!.close();
+  function hideLoadSaveGdrive() {
+    loadSaveGdriveRef.value!.close();
   }
   const newFilename = ref<string>("");
   const currentGdrive = ref<{id: string, name: string}|null>(null);
@@ -450,7 +467,7 @@
       savingMessage.value = true;
     }
     setTimeout(() => {
-      hideLoadSave();
+      hideLoadSaveGdrive();
     }, 3_000);
   }
   async function loadGdrive(f: {id: string, name: string}) {
@@ -462,12 +479,12 @@
     content.value = newContent;
     currentGdrive.value = f;
     setTimeout(() => {
-      hideLoadSave();
+      hideLoadSaveGdrive();
     }, 3_000);
   }
   function newJourney() {
     (window as any).dataLayer?.push({event: 'jf-newJourney'});
-    if (!confirm("Discard what's not yet saved and create new?")) {
+    if (!confirm("Discard what's not yet saved and create new Journey?")) {
       return;
     }
     content.value = {
@@ -480,7 +497,6 @@
       overallSignoff: false,
     }
     currentGdrive.value = null;
-    hideLoadSave();
   }
 
   const createStoryRef = useTemplateRef<HTMLDialogElement>('createStory');
