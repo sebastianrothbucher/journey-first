@@ -7,7 +7,7 @@
       <button class="matter-button-outlined" @click="newJourney()">New</button>
     </div>
     <h2>Journey <em>first</em></h2>
-    <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team.<br/>
+    <p>This tool helps you get a clear and detailed customer journey - and get the insights out to everyone in your team. Once you went through the steps - you'll have a very clear picture - and you can also start an interactive <em>briefing</em> to get your team up to speed. If you want to know how a final result can look like, load the <a href="#" @click="sampleJourney()">sample</a><br/>
     And yes, feel free to just use it - I don't want any money for it, it's my contribution to the community. Also means I don't store anything or provide a full service. This here is all there is.<br/>
     Have feedback or ideas? Don't hesitate to <a href="https://docs.google.com/forms/d/e/1FAIpQLScZ5Qhk8jllh49di48ehdxgQpVuSCsFo7E8WWFwO-Nxv0GkUA/viewform?usp=header" target="_blank">share your thoughts any time</a>! Also feel free to start a (personal) discussion and <a href="https://github.com/sebastianrothbucher/journey-first/issues" target="_blank">open an Issue</a>! Anyhow your feedback is appreciated.<br/>
     <small>This page is for demo purposes only; here is absolutely, positively, <strong>zero warranty</strong> - you are using this tool <strong>at your own risk.</strong>. <a href="https://github.com/sebastianrothbucher/journey-first/blob/main/LICENSE" target="_blank">MIT License</a> applies - <a href="https://github.com/sebastianrothbucher/journey-first/" target="_blank">Code</a></small></p>
@@ -250,6 +250,7 @@
   import Steps from '@/components/Steps.vue';
   import { computed, onBeforeUnmount, onMounted, ref, Ref, useTemplateRef } from 'vue';
   import * as gdrive from '../util/gdrive';
+  import * as sample from '../util/sample.json';
 
   interface Stakeholder {
     name: string;
@@ -562,6 +563,15 @@
       steps: [],
       overallSignoff: false,
     }
+    currentGdrive.value = null;
+    currentLocal.value = null;
+  }
+  function sampleJourney() {
+    (window as any).dataLayer?.push({event: 'jf-sampleJourney'});
+    if (!confirm("Discard what's not yet saved and and load the sample Journey?")) {
+      return;
+    }
+    content.value = JSON.parse(JSON.stringify(sample));
     currentGdrive.value = null;
     currentLocal.value = null;
   }

@@ -1,0 +1,66 @@
+{
+  "stakeholders": [
+    {
+      "name": "Emily Chen",
+      "type": "decisionmaker",
+      "goals": "Grow online revenue and increase customer lifetime value; holds budget authority"
+    },
+    {
+      "name": "Marcus Webb",
+      "type": "gatekeeper",
+      "goals": "Ensure platform stability, security compliance, and clean ERP/warehouse integrations"
+    },
+    {
+      "name": "Sophie Adler",
+      "type": "influencer",
+      "goals": "Improve post-purchase CX, reduce churn, and champion tools that raise satisfaction scores"
+    }
+  ],
+  "situation": "The store converts first-time buyers well but has no post-purchase engagement — no loyalty mechanism, no personalized re-engagement, no structured upsell path. Repeat purchases happen by chance.",
+  "problem": "Customers who bought once aren't coming back. Cart abandonment sits around 72%, emails are generic blasts, and there's no recommendation engine. Customer lifetime value is well below benchmark.",
+  "downsides": "The store competes purely on price and ad spend. Rising acquisition costs erode margins while competitors with loyalty programmes capture the repeat business this store should own.",
+  "focus": "A post-purchase engagement layer — automated emails, a loyalty programme, and personalized recommendations — to raise repeat purchase rate, lift average order value, and build a retained customer base.",
+  "steps": [
+    {
+      "title": "Browse & Discover",
+      "stepSignoff": false,
+      "walkthrough": "A first-time visitor lands via paid social or organic search and browses category and product pages. The experience is clean but generic — no personalization and no dynamically surfaced social proof.",
+      "walkthroughSignoff": false,
+      "exists": "Standard product catalogue and site search.",
+      "needed": "Dynamic product recommendations, review highlights, and 'customers also viewed' carousels."
+    },
+    {
+      "title": "Add to Cart & Checkout",
+      "stepSignoff": false,
+      "walkthrough": "Customer adds items and proceeds to checkout. Guest checkout is available but there is no email capture for abandonment recovery and no upsell prompt at this stage.",
+      "walkthroughSignoff": false,
+      "exists": "Functional checkout flow with guest option.",
+      "needed": "Pre-checkout email capture, cart abandonment recovery trigger, and a 'frequently bought together' upsell module."
+    },
+    {
+      "title": "Order Confirmation & First Post-Purchase Touch",
+      "stepSignoff": false,
+      "walkthrough": "After purchase the customer receives a standard transactional confirmation email with no brand story, no loyalty invite, and no cross-sell.",
+      "walkthroughSignoff": false,
+      "exists": "Basic transactional order confirmation email.",
+      "needed": "Branded confirmation email with loyalty programme invite, live tracking link, and one contextually relevant product recommendation."
+    },
+    {
+      "title": "Delivery & Unboxing",
+      "stepSignoff": false,
+      "walkthrough": "Product arrives with no in-box material and no triggered post-delivery email to confirm satisfaction or prompt a review.",
+      "walkthroughSignoff": false,
+      "exists": "Standard shipping and fulfilment process.",
+      "needed": "Post-delivery email on day +2 requesting a review, awarding loyalty points for completion, and surfacing a complementary product."
+    },
+    {
+      "title": "Loyalty & Re-engagement",
+      "stepSignoff": false,
+      "walkthrough": "Repeat purchase is left entirely to chance. There is no loyalty programme, no milestone communication, and no win-back sequence for lapsed customers.",
+      "walkthroughSignoff": false,
+      "exists": "n/a — nothing currently exists for post-purchase retention.",
+      "needed": "Loyalty points engine, automated re-engagement at 30/60/90 days, win-back offer for lapsed customers, and a points-expiry nudge email."
+    }
+  ],
+  "overallSignoff": false
+}
