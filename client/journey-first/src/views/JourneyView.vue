@@ -1,6 +1,7 @@
 <template>
   <div class="journey">
     <div style="float: right; ">
+      <button class="matter-button-contained" :disabled="!(content.steps?.length)" @click="presentation()">Briefing <small>(new)</small></button>
       <button class="matter-button-outlined" :disabled="coachOptedIn" @click="coachOk.show()">Coach opt-in</button>
       <button class="matter-button-contained" @click="showLoadSave()">Load/Save</button>
       <button class="matter-button-outlined" @click="newJourney()">New</button>
@@ -656,6 +657,11 @@
       asanaCreatedMessage.value = true;
       setTimeout(() => asanaCreatedMessage.value = false, 3_000);
     }
+  }
+
+  function presentation() {
+    window.open("./presentation.html");
+    (window as any).dataLayer?.push({event: 'jf-presentation'});
   }
 
   // TODO: error handling - press F5 to reload, etc.
