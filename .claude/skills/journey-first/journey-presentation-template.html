@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reset.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --accent: #d4420a;
+    --accent2: #1a5c8a;
+    --muted: #8a8070;
+  }
+  .reveal-viewport { background: var(--ink); }
+  .reveal .slides section {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    border-radius: 4px;
+    text-align: left;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  /* TITLE */
+  .slide-title {
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: flex-start; padding: 60px 72px;
+    background: var(--ink) !important; color: var(--paper) !important;
+    height: 100%; position: relative; overflow: hidden;
+  }
+  .slide-title::before {
+    content: ''; position: absolute; right: -80px; top: -80px;
+    width: 420px; height: 420px; border-radius: 50%;
+    border: 2px solid rgba(212,66,10,0.3);
+  }
+  .slide-title::after {
+    content: ''; position: absolute; right: 20px; top: 20px;
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 1px solid rgba(212,66,10,0.15);
+  }
+  .slide-title .eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 16px; font-weight: 600;
+  }
+  .slide-title h1 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 4.2rem; line-height: 1.05;
+    margin: 0 0 24px; color: var(--paper); letter-spacing: 0.02em; max-width: 640px;
+  }
+  .slide-title .subtitle {
+    font-size: 1rem; color: var(--muted); max-width: 460px;
+    line-height: 1.6; font-weight: 300;
+  }
+  /* SECTION HEADER */
+  .slide-section-header {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 60px 72px; height: 100%;
+    background: var(--accent) !important; color: var(--paper) !important;
+    position: relative; overflow: hidden;
+  }
+  .slide-section-header .big-label {
+    font-family: 'Bebas Neue', sans-serif; font-size: 9rem;
+    color: rgba(255,255,255,0.08); position: absolute;
+    bottom: -20px; right: 20px; line-height: 1; letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+  .slide-section-header h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem;
+    color: var(--paper); margin: 0 0 12px; letter-spacing: 0.03em;
+  }
+  .slide-section-header p {
+    font-size: 1rem; color: rgba(245,240,232,0.75);
+    max-width: 500px; line-height: 1.6; font-weight: 300;
+  }
+  /* STAKEHOLDER */
+  .slide-stakeholder {
+    display: flex; flex-direction: column; padding: 50px 72px;
+    height: 100%; position: relative; overflow: hidden;
+  }
+  .type-badge {
+    display: inline-block; font-size: 0.65rem; font-weight: 600;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 2px; margin-bottom: 20px; width: fit-content;
+  }
+  .badge-gatekeeper    { background: #1a5c8a; color: #fff; }
+  .badge-decisionmaker { background: var(--accent); color: #fff; }
+  .badge-influencer    { background: #5a3e8a; color: #fff; }
+  .slide-stakeholder h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 4rem;
+    margin: 0 0 8px; color: var(--ink); letter-spacing: 0.02em; line-height: 1;
+  }
+  .divider { width: 60px; height: 3px; background: var(--accent); margin: 20px 0; }
+  .goals-label {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 10px;
+  }
+  .goals-text {
+    font-size: 1.25rem; line-height: 1.55; color: var(--ink);
+    max-width: 520px; font-weight: 300;
+  }
+  .avatar {
+    position: absolute; right: 72px; top: 50%; transform: translateY(-50%);
+    width: 160px; height: 160px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 4rem;
+    color: #fff; opacity: 0.15;
+  }
+  .av-gatekeeper    { background: #1a5c8a; }
+  .av-decisionmaker { background: var(--accent); }
+  .av-influencer    { background: #5a3e8a; }
+  /* SPIN */
+  .slide-spin {
+    display: grid; grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr; height: 100%; gap: 0;
+  }
+  .spin-cell {
+    padding: 36px 44px; display: flex; flex-direction: column;
+    justify-content: flex-start; position: relative; overflow: hidden;
+  }
+  .spin-cell::after {
+    content: attr(data-letter); font-family: 'Bebas Neue', sans-serif;
+    font-size: 7rem; position: absolute; bottom: -10px; right: 10px;
+    opacity: 0.06; color: var(--ink); line-height: 1;
+  }
+  .spin-cell:nth-child(1) { background: var(--paper); border-right: 1px solid #ddd6c8; border-bottom: 1px solid #ddd6c8; }
+  .spin-cell:nth-child(2) { background: #ede8dc; border-bottom: 1px solid #ddd6c8; }
+  .spin-cell:nth-child(3) { background: #ede8dc; border-right: 1px solid #ddd6c8; }
+  .spin-cell:nth-child(4) { background: var(--paper); }
+  .spin-letter {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem;
+    color: var(--accent); letter-spacing: 0.1em; margin-bottom: 6px;
+  }
+  .spin-cell h3 {
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px;
+  }
+  .spin-cell p { font-size: 0.95rem; line-height: 1.6; color: var(--ink); font-weight: 300; margin: 0; }
+  /* JOURNEY */
+  .slide-journey { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+  .journey-header {
+    background: var(--accent2); padding: 32px 72px 28px;
+    color: #fff; flex-shrink: 0;
+  }
+  .journey-header .step-num {
+    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+    font-weight: 600; color: rgba(255,255,255,0.55); margin-bottom: 8px;
+  }
+  .journey-header h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem;
+    margin: 0; letter-spacing: 0.03em; color: #fff; line-height: 1;
+  }
+  .journey-body {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; flex: 1; overflow: hidden;
+  }
+  .journey-col {
+    padding: 28px 36px; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .journey-col:not(:last-child) { border-right: 1px solid #ddd6c8; }
+  .journey-col:nth-child(1) { background: var(--paper); }
+  .journey-col:nth-child(2) { background: #f0ece2; }
+  .journey-col:nth-child(3) { background: #e8f0f7; }
+  .col-label {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.25em;
+    text-transform: uppercase; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid;
+  }
+  .journey-col:nth-child(1) .col-label { color: var(--muted); border-color: #ccc4b4; }
+  .journey-col:nth-child(2) .col-label { color: #5a4030; border-color: var(--accent); }
+  .journey-col:nth-child(3) .col-label { color: #1a4a6a; border-color: var(--accent2); }
+  .col-text { font-size: 0.85rem; line-height: 1.65; font-weight: 300; color: var(--ink); overflow-y: auto; }
+  .na-tag {
+    display: inline-block; background: #e0dbd0; color: var(--muted);
+    font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;
+    letter-spacing: 0.1em; font-weight: 600;
+  }
+  .needed-tag { background: #fde8e0; color: #a03010; }
+  /* reveal overrides */
+  .reveal .slides { height: 100%; }
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 { text-transform: none; }
+  .reveal .progress { color: var(--accent); }
+  .reveal .controls { color: var(--accent); }
+
+  /* ── GLOBAL FONT SCALE UP ───────────────────────────────
+     All rem values below are relative to this base.
+     Bump this one number to scale everything together.     */
+  .reveal { font-size: 28px; }
+
+  /* Title slide */
+  .slide-title .eyebrow   { font-size: 1rem; }
+  .slide-title h1         { font-size: 3.5rem; }
+  .slide-title .subtitle  { font-size: 1.4rem; }
+
+  /* Section headers */
+  .slide-section-header h2  { font-size: 5rem; }
+  .slide-section-header p   { font-size: 1.4rem; }
+  .slide-section-header .big-label { font-size: 12rem; }
+
+  /* Stakeholder */
+  .type-badge        { font-size: 0.9rem; }
+  .slide-stakeholder h2 { font-size: 5.5rem; }
+  .goals-label       { font-size: 0.9rem; }
+  .goals-text        { font-size: 1.6rem; }
+  .avatar            { font-size: 5rem; width: 200px; height: 200px; }
+
+  /* SPIN */
+  .spin-letter  { font-size: 2rem; }
+  .spin-cell h3 { font-size: 1rem; }
+  .spin-cell p  { font-size: 1.25rem; }
+  .spin-cell::after { font-size: 9rem; }
+
+  /* Journey */
+  .journey-header .step-num { font-size: 0.9rem; }
+  .journey-header h2        { font-size: 3.8rem; }
+  .col-label  { font-size: 0.85rem; }
+  .col-text   { font-size: 1.15rem; line-height: 1.6; }
+  .na-tag     { font-size: 0.9rem; }
+
+  /* ── JOURNEY OVERVIEW (chevron row) ────────────────────── */
+  .slide-journey-overview {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 40px 60px;
+    background: var(--ink) !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-journey-overview::before {
+    content: 'JOURNEY';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14rem;
+    color: rgba(255,255,255,0.03);
+    position: absolute;
+    bottom: -20px; left: 0; right: 0;
+    text-align: center;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+  }
+  .chevron-eyebrow {
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 36px;
+    align-self: flex-start;
+  }
+  .chevron-row {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
+  }
+  .chevron-item {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 130px;
+    padding: 20px 44px 20px 36px;
+    clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%);
+    background: #1e1e1e;
+    transition: background 0.2s;
+    text-align: center;
+  }
+  /* First chevron has no left notch */
+  .chevron-item:first-child {
+    clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%);
+    padding-left: 32px;
+  }
+  /* Colour each chevron differently */
+  .chevron-item:nth-child(1) { background: #1a3a52; }
+  .chevron-item:nth-child(2) { background: #1a4a6a; }
+  .chevron-item:nth-child(3) { background: var(--accent2); }
+  .chevron-item:nth-child(4) { background: #1a6880; }
+  .chevron-item:nth-child(5) { background: #0d8c7a; }
+  /* Add more if needed — they cycle */
+
+  /* thin gap between chevrons */
+  .chevron-item + .chevron-item { margin-left: 3px; }
+
+  .chevron-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .chevron-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+  }
+  .chevron-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     ★  DATA  —  Edit this constant to regenerate all slides automatically
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+const DATA = JSON.parse(localStorage.getItem("journey1st"));
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PETITE-VUE TEMPLATE  (hidden staging area — moved into Reveal by JS)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="app" style="display:none" v-scope="{ ...DATA, initials, pad }">
+
+  <!-- ── TITLE ── -->
+  <section>
+    <div class="slide-title">
+      <div class="eyebrow">Strategic Initiative</div>
+      <h1>{{ focus }}</h1>
+      <p class="subtitle">{{ situation }}</p>
+    </div>
+  </section>
+
+  <!-- ── STAKEHOLDERS SECTION HEADER ── -->
+  <section>
+    <div class="slide-section-header">
+      <span class="big-label">WHO</span>
+      <h2>Stakeholders</h2>
+      <p>{{ stakeholders.length }} key personas shape the buy-in, adoption, and promotion of our service offering.</p>
+    </div>
+  </section>
+
+  <!-- ── ONE SLIDE PER STAKEHOLDER ── -->
+  <section v-for="s in stakeholders" :key="s.name">
+    <div class="slide-stakeholder">
+      <div class="type-badge" :class="'badge-' + s.type">{{ s.type }}</div>
+      <h2>{{ s.name }}</h2>
+      <div class="divider"></div>
+      <div class="goals-label">Primary Goal</div>
+      <div class="goals-text">{{ s.goals }}</div>
+      <div class="avatar" :class="'av-' + s.type">{{ initials(s.name) }}</div>
+    </div>
+  </section>
+
+  <!-- ── SPIN SECTION HEADER ── -->
+  <section>
+    <div class="slide-section-header">
+      <span class="big-label">SPIN</span>
+      <h2>SPIN Analysis</h2>
+      <p>Situation, Problem, Implication and Need-Payoff mapped to build a compelling case for change.</p>
+    </div>
+  </section>
+
+  <!-- ── SPIN QUAD ── -->
+  <section>
+    <div class="slide-spin">
+      <div class="spin-cell" data-letter="S">
+        <div class="spin-letter">S</div>
+        <h3>Situation</h3>
+        <p>{{ situation }}</p>
+      </div>
+      <div class="spin-cell" data-letter="P">
+        <div class="spin-letter">P</div>
+        <h3>Problem</h3>
+        <p>{{ problem }}</p>
+      </div>
+      <div class="spin-cell" data-letter="I">
+        <div class="spin-letter">I</div>
+        <h3>Implication</h3>
+        <p>{{ downsides }}</p>
+      </div>
+      <div class="spin-cell" data-letter="N">
+        <div class="spin-letter">N</div>
+        <h3>Need-Payoff</h3>
+        <p>{{ focus }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── JOURNEY SECTION HEADER ── -->
+  <section>
+    <div class="slide-section-header">
+      <span class="big-label">JOURNEY</span>
+      <h2>Customer Journey</h2>
+      <p>{{ steps.length }} steps from first purchase to engaged portal user — what exists, what's needed, and how it works.</p>
+    </div>
+  </section>
+
+  <!-- ── JOURNEY OVERVIEW: CHEVRON ROW ── -->
+  <section>
+    <div class="slide-journey-overview">
+      <div class="chevron-eyebrow">Customer Journey Overview</div>
+      <div class="chevron-row">
+        <div class="chevron-item" v-for="(step, idx) in steps" :key="step.title">
+          <div class="chevron-inner">
+            <div class="chevron-num">{{ pad(idx + 1) }}</div>
+            <div class="chevron-title">{{ step.title }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ONE SLIDE PER JOURNEY STEP ── -->
+  <section v-for="(step, idx) in steps" :key="step.title">
+    <div class="slide-journey">
+      <div class="journey-header">
+        <div class="step-num">Step {{ pad(idx + 1) }} of {{ pad(steps.length) }}</div>
+        <h2>{{ step.title }}</h2>
+      </div>
+      <div class="journey-body">
+        <div class="journey-col">
+          <div class="col-label">Walkthrough</div>
+          <div class="col-text">{{ step.walkthrough }}</div>
+        </div>
+        <div class="journey-col">
+          <div class="col-label">What Exists</div>
+          <div class="col-text">
+            <span v-if="!step.exists || !step.exists.trim()" class="na-tag">Nothing yet</span>
+            <span v-else>{{ step.exists }}</span>
+          </div>
+        </div>
+        <div class="journey-col">
+          <div class="col-label">What's Needed</div>
+          <div class="col-text">
+            <span v-if="!step.needed || step.needed.trim().toLowerCase() === 'n/a'" class="na-tag">n/a</span>
+            <template v-else>
+              <span class="na-tag needed-tag">To Build</span><br><br>{{ step.needed }}
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /#app -->
+
+<!-- Reveal shell — slides will be injected here -->
+<div class="reveal" style="display:none" id="reveal-root">
+  <div class="slides" id="slides-container"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+<script type="module">
+  import { createApp } from 'https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.es.js';
+
+  // Helpers exposed to the template
+  function initials(name) {
+    return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  // Mount petite-vue — it renders synchronously into #app
+  createApp({ ...DATA, initials, pad }).mount('#app');
+
+  // After the browser has painted the rendered DOM, transplant the
+  // <section> elements into Reveal's slide container and boot Reveal.
+  requestAnimationFrame(() => {
+    const container = document.getElementById('slides-container');
+    const staging   = document.getElementById('app');
+
+    staging.querySelectorAll('section').forEach(s => container.appendChild(s));
+
+    document.getElementById('reveal-root').style.display = '';
+    staging.remove();
+
+    Reveal.initialize({
+      hash: true,
+      transition: 'fade',
+      transitionSpeed: 'slow',
+      backgroundTransition: 'fade',
+      controls: true,
+      progress: true,
+      center: false,
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+    });
+  });
+</script>
+</body>
+</html>
